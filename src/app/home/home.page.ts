@@ -21,12 +21,17 @@ export class HomePage implements OnDestroy, OnInit {
   studentName: string;
   studentAge: number;
   studentAddress: string;
+
+  Messages: any;
+  Theme: string;
+  Message: string;
   
     
   private ngUnsubscribe = new Subject();
   public loading: HTMLIonLoadingElement;
 
   public isAdmin = false;
+  public user: string;
 
   constructor( private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router) {}
 
@@ -41,9 +46,27 @@ export class HomePage implements OnDestroy, OnInit {
           .get()
           .then(userProfileSnapshot => {
             this.isAdmin = userProfileSnapshot.data().isAdmin;
+            this.user = userProfileSnapshot.data().email;
           });
       }
     });
+
+    this.crudService.read_Messages().subscribe(data => {
+ 
+      this.Messages = data.map(e => {
+        return {
+          id: e.payload.doc.id,
+          isEdit: false,
+          Theme: e.payload.doc.data()['Theme'],
+          Message: e.payload.doc.data()['Message'],
+          User: e.payload.doc.data()['User']
+        };
+      })
+      console.log(this.Messages);
+      
+ 
+    });
+
 
     this.crudService.read_Students().subscribe(data => {
  
@@ -104,6 +127,24 @@ export class HomePage implements OnDestroy, OnInit {
         console.log(error);
       });
   }
+
+  CreateMessage() {
+    let record = {};
+    record['Theme'] = this.Theme;
+    record['Message'] = this.Message;
+    record['User'] = this.user;
+    
+    this.crudService.create_NewMessage(record).then(resp => {
+      this.studentName = "";
+      this.studentAge = undefined;
+      this.studentAddress = "";
+      console.log(resp);
+    })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
  
   RemoveRecord(rowID) {
     this.crudService.delete_Student(rowID);

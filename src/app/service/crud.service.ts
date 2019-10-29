@@ -11,10 +11,18 @@ export class CrudService {
   create_NewStudent(record) {
     return this.firestore.collection('Passagers').add(record);
   }
- 
   read_Students() {
     return this.firestore.collection('Passagers').snapshotChanges();
   }
+
+  create_NewMessage(record) {
+    return this.firestore.collection('Messages').add(record);
+  }
+  read_Messages() {
+    return this.firestore.collection('Messages').snapshotChanges();
+  }
+ 
+  
  
   update_Student(recordID,record){
     this.firestore.doc('Passagers/' + recordID).update(record);
