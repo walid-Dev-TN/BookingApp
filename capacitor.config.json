@@ -1,0 +1,8 @@
+{
+  "appId": "com.myfirestbooking.app",
+  "appName": "MyFistBooking",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "cordova": {}
+}
