@@ -18,6 +18,7 @@ import * as firebase from 'firebase';
 import { ServiceWorkerModule } from '@angular/service-worker';
 firebase.initializeApp(environment.firebase);
 
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
