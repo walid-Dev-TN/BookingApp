@@ -10,6 +10,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 
+//import { HttpClient, HttpHeaders} from '@angular/common/http';
 
 
 @Component({
@@ -34,6 +35,7 @@ export class HomePage implements OnDestroy, OnInit {
 
   public isAdmin = false;
   public user: string;
+  public Mytoken: any;
 
   constructor( private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router) {}
 
@@ -65,6 +67,37 @@ export class HomePage implements OnDestroy, OnInit {
         };
       })
       console.log(this.Messages);
+/*****************************************************
+
+
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "Accept": 'application/json',
+        'Content-Type':  'application/json'
+        })
+      };
+
+    let postData : {
+       
+        "notification":
+         {
+          "title": "Test title",
+          "body": "Test Body",
+          "click_action" : "https://github.com/walid-Dev-TN/BookingApp"
+         },
+         
+         "to" : "",
+        
+    };
+
+    this.httpClient.post("https://fcm.googleapis.com/fcm/send", postData, httpOptions)
+      .subscribe(data => {
+        console.log("Message envoyé portant sur le theme" + this.Theme);
+       }, error => {
+        console.log(error);
+      });
+****************************************************** */
       
  
     });

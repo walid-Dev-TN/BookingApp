@@ -4,6 +4,7 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import {firebase} from '@firebase/app';
+//import * as firebase from 'firebase'
 import {environment} from '../environments/environment';
 import {NotificationsService} from './service/notifications.service';
 
@@ -18,12 +19,11 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private notificationsService: NotificationsService
-    
-    
-  ) {
+   )
+   {
     this.initializeApp();
-   
-  }
+   }
+
   async ngOnInit() {
     firebase.initializeApp(environment.firebase);
     await this.notificationsService.init();

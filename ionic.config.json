@@ -1,5 +1,7 @@
 {
   "name": "Ionic4FirestoreCRUD",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

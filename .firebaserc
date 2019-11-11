@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "blassa-df986"
+    "default": "blassa-df986",
+    "OnlineReservation": "blassa-df986"
   }
 }

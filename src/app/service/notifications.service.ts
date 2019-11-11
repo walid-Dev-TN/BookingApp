@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {firebase} from '@firebase/app';
+//import * as firebase from 'firebase'
 import '@firebase/messaging';
 import {environment} from '../../environments/environment';
 
@@ -70,6 +71,7 @@ export class NotificationsService {
 
             console.log('User notifications token:', token);
         } catch (err) {
+            console.log('No token received', err);
             // No notifications granted
         }
 
