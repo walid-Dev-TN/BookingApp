@@ -21,9 +21,11 @@ import 'firebase/firestore';
 export class HomePage implements OnDestroy, OnInit {
 
   students: any;
+  studentMail: string;
   studentName: string;
   studentAge: number;
   studentAddress: string;
+  PushToken: string;
 
   Messages: any;
   Theme: string;
@@ -35,9 +37,9 @@ export class HomePage implements OnDestroy, OnInit {
 
   public isAdmin = false;
   public user: string;
-  public Mytoken: any;
+  
 
-  constructor( private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router) {}
+  constructor(private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router) {}
 
 
   ngOnInit() {
@@ -149,13 +151,17 @@ export class HomePage implements OnDestroy, OnInit {
 
   CreateRecord() {
     let record = {};
+    record['Email'] = this.studentMail;
     record['Name'] = this.studentName;
     record['Age'] = this.studentAge;
     record['Address'] = this.studentAddress;
+    record['PushToken'] = 0;
+
     this.crudService.create_NewStudent(record).then(resp => {
       this.studentName = "";
       this.studentAge = undefined;
       this.studentAddress = "";
+    
       console.log(resp);
     })
       .catch(error => {
@@ -170,9 +176,9 @@ export class HomePage implements OnDestroy, OnInit {
     record['User'] = this.user;
     
     this.crudService.create_NewMessage(record).then(resp => {
-      this.studentName = "";
-      this.studentAge = undefined;
-      this.studentAddress = "";
+      this.Theme = "";
+      
+      this.Message = "";
       console.log(resp);
     })
       .catch(error => {

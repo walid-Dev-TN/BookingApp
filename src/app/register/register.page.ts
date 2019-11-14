@@ -20,6 +20,15 @@ export class RegisterPage implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router) {
       this.signupForm = this.formBuilder.group({
+        name: [
+          '',
+          Validators.compose([Validators.required, Validators.maxLength(20)]),
+        ],
+        tel: [
+          '',
+          Validators.compose([Validators.required, Validators.maxLength(13)]),
+        ],
+       
         email: [
           '',
           Validators.compose([Validators.required, Validators.email]),
@@ -41,11 +50,13 @@ export class RegisterPage implements OnInit {
         'Need to complete the form, current value: ', signupForm.value
       );
     } else {
+      const name: string = signupForm.value.name;
+      const tel: string = signupForm.value.tel;
       const email: string = signupForm.value.email;
       const password: string = signupForm.value.password;
       
   
-      this.authService.signupUser(email, password).then(
+      this.authService.signupUser(name, tel, email, password).then(
         () => {
           this.loading.dismiss().then(() => {
             this.router.navigateByUrl('home');

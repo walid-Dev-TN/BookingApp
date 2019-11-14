@@ -16,7 +16,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 //import * as firebase from 'firebase';
 import { ServiceWorkerModule } from '@angular/service-worker';
-
+import {global} from "src/global";
 
 
 @NgModule({
@@ -33,7 +33,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    global
   ],
   bootstrap: [AppComponent]
 })

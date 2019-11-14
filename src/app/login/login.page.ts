@@ -2,8 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from './../service/auth.service';
+import { CrudService } from './../service/crud.service';
 import { Router } from '@angular/router';
+import { AngularFirestore } from '@angular/fire/firestore';
+import {global} from "src/global";
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import {NotificationsService} from '../service/notifications.service';
 
 @Component({
   selector: 'app-login',
@@ -12,14 +18,24 @@ import { Router } from '@angular/router';
 })
 export class LoginPage implements OnInit {
 
+
   public loginForm: FormGroup;
   public loading: HTMLIonLoadingElement;
+/************* */
 
+public UserRef$: Observable<unknown[]>;
+public data;
+public id;
+/************** */
   constructor(public loadingCtrl: LoadingController,
     public alertCtrl: AlertController,
     private authService: AuthService,
+    private crudService: CrudService,
     private router: Router,
-    private formBuilder: FormBuilder) { 
+    private formBuilder: FormBuilder,
+    private firestore: AngularFirestore,
+    private global: global,
+    private notificationsService: NotificationsService) { 
       this.loginForm = this.formBuilder.group({
         email: ['',
           Validators.compose([Validators.required, Validators.email])],
@@ -31,9 +47,16 @@ export class LoginPage implements OnInit {
 
     }
 
-  ngOnInit() {
-  }
+  
 
+  async ngOnInit() {
+    
+    await this.notificationsService.init();
+}
+  async ngAfterViewInit() {
+ 
+     await this.notificationsService.requestPermission();
+  }
   
   async loginUser(loginForm: FormGroup): Promise<void> {
     if (!loginForm.valid) {
@@ -48,6 +71,24 @@ export class LoginPage implements OnInit {
       this.authService.loginUser(email, password).then(
         () => {
           this.loading.dismiss().then(() => {
+/********************************** */
+            
+this.UserRef$ = this.firestore.collection('Passagers/', ref =>
+ref.where('Email', '==', email)).snapshotChanges().pipe(
+  
+  map(actions => {
+      return actions.map(a => {
+        this.data = a.payload.doc.data();
+        this.id = a.payload.doc.id;
+        
+      });
+    })
+    
+);
+
+            this.firestore.doc('Passagers/' + this.id).update({PushToken : this.global.PushToken});
+
+ /******************************************* */           
             this.router.navigateByUrl('home');
           });
         },

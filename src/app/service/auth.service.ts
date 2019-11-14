@@ -11,10 +11,11 @@ export class AuthService {
 
   constructor() { }
 
-  signupUser(email: string, password: string): Promise<any> {
+  signupUser(name:string, tel:string, email: string, password: string): Promise<any> {
     return firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password)
+      
+      .createUserWithEmailAndPassword(name + "/" + tel + "/" + email, password)
       .then((newUserCredential: firebase.auth.UserCredential) => {
         firebase
           .firestore()

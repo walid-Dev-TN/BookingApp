@@ -6,7 +6,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import {firebase} from '@firebase/app';
 //import * as firebase from 'firebase'
 import {environment} from '../environments/environment';
-import {NotificationsService} from './service/notifications.service';
+//import {NotificationsService} from './service/notifications.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,7 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private notificationsService: NotificationsService
+   // private notificationsService: NotificationsService
    )
    {
     this.initializeApp();
@@ -26,7 +26,7 @@ export class AppComponent {
 
   async ngOnInit() {
     firebase.initializeApp(environment.firebase);
-    await this.notificationsService.init();
+   // await this.notificationsService.init();
 }
   initializeApp() {
     this.platform.ready().then(() => {
@@ -38,9 +38,9 @@ export class AppComponent {
     
   }
 
-  ngAfterViewInit() {
+ /* ngAfterViewInit() {
     this.platform.ready().then(async () => {
        await this.notificationsService.requestPermission();
     });
-}
+}*/
 }

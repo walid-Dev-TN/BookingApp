@@ -52,7 +52,14 @@
           {{item.Message}}
       </ion-card-content>
   </ion-card>      
-   <ion-grid *ngIf="isAdmin" fixed>     
+   <ion-grid *ngIf="isAdmin" fixed>   
+      <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-input placeholder="Enter Email" [(ngModel)]="studentMail"></ion-input>
+            </ion-item>
+          </ion-col>
+      </ion-row>  
     <ion-row>
       <ion-col>
         <ion-item>

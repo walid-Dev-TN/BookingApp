@@ -3,13 +3,19 @@ import {firebase} from '@firebase/app';
 //import * as firebase from 'firebase'
 import '@firebase/messaging';
 import {environment} from '../../environments/environment';
+import {global} from "src/global";
 
 @Injectable({
   providedIn: 'root'
 })
+
+
+
+
 export class NotificationsService {
   
-  
+    constructor(public global: global){}
+
   init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         navigator.serviceWorker.ready.then((registration) => {
@@ -32,6 +38,7 @@ export class NotificationsService {
             // Optional and not covered in the article
             // Listen to messages when your app is in the foreground
             messaging.onMessage((payload) => {
+                
                 console.log(payload);
             });
             // Optional and not covered in the article
@@ -39,6 +46,7 @@ export class NotificationsService {
             messaging.onTokenRefresh(() => {
                 messaging.getToken().then(
                 (refreshedToken: string) => {
+                   
                     console.log(refreshedToken);
                 }).catch((err) => {
                     console.error(err);
@@ -68,7 +76,7 @@ export class NotificationsService {
             await messaging.requestPermission();
 
             const token: string = await messaging.getToken();
-
+            this.global.PushToken = token;
             console.log('User notifications token:', token);
         } catch (err) {
             console.log('No token received', err);
