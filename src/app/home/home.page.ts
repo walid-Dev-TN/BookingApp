@@ -10,6 +10,16 @@ import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 
+
+import { Plugins } from "@capacitor/core";
+import { map } from "rxjs/operators";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../environments/environment";
+import { ToastController } from "@ionic/angular";
+
+
+import { AngularFirestore } from '@angular/fire/firestore';
+
 //import { HttpClient, HttpHeaders} from '@angular/common/http';
 
 
@@ -20,14 +30,23 @@ import 'firebase/firestore';
 })
 export class HomePage implements OnDestroy, OnInit {
 
-  students: any;
-  studentName: string;
-  studentAge: number;
-  studentAddress: string;
+  Users: any;
+  UserName: string;
+  UserAge: number;
+  
+  address: string;
+  lat: number;
+  lng: number;
+
+  latme: number;
+  lngme:number;
 
   Messages: any;
   Theme: string;
   Message: string;
+  
+  
+  
   
     
   private ngUnsubscribe = new Subject();
@@ -37,24 +56,40 @@ export class HomePage implements OnDestroy, OnInit {
   public user: string;
   public Mytoken: any;
 
-  constructor( private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router) {}
+  constructor( private firestore: AngularFirestore, private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router,
+    private http: HttpClient,
+    public toastController: ToastController
+    ) {}
 
 
   ngOnInit() {
+    
 
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
+
+          // call get current location function on initializing
+            this.getCurrentLocation(user.uid);
+
         firebase
           .firestore()
           .doc(`/userProfile/${user.uid}`)
           .get()
           .then(userProfileSnapshot => {
+
+            firebase.database().ref(`userProfile/${user.uid}/isAdmin`).once("value", snapshot => {
+              if (snapshot.exists()){
             this.isAdmin = userProfileSnapshot.data().isAdmin;
+              }
+            });
+            console.log(user.uid);
             this.user = userProfileSnapshot.data().email;
           });
       }
     });
 
+
+    
     this.crudService.read_Messages().subscribe(data => {
  
       this.Messages = data.map(e => {
@@ -102,23 +137,120 @@ export class HomePage implements OnDestroy, OnInit {
  
     });
 
-
-    this.crudService.read_Students().subscribe(data => {
+    
+    this.crudService.read_Users().subscribe(data => {
  
-      this.students = data.map(e => {
+      this.Users = data.map(e => {
         return {
-          id: e.payload.doc.id,
-          isEdit: false,
-          Name: e.payload.doc.data()['Name'],
-          Age: e.payload.doc.data()['Age'],
-          Address: e.payload.doc.data()['Address'],
+          
+          address: e.payload.doc.data()['Address'],
+          lat: e.payload.doc.data()['lat'],
+          lng: e.payload.doc.data()['lng']
         };
       })
-      console.log(this.students);
+      console.log(this.Users);
       
  
     });
+
+
+   
   }
+ 
+  // Function to get the current geo position of the device
+
+   async getCurrentLocation(userId: string) {
+    var lat0: number = 0;
+      var lng0: number = 0;
+      var address0: string = "Pas de geolocalisation";
+    await Plugins.Geolocation.getCurrentPosition().then(result => {
+      lat0 = result.coords.latitude;
+      lng0 = result.coords.longitude;
+      this.latme = lat0;
+      this.lngme = lng0;
+    });
+      
+      // calling getAddress function to decode the address
+
+      await this.getAddress(lat0, lng0).subscribe(decodedAddress => {
+        address0 = decodedAddress;
+       
+      });
+      console.log(address0);
+      /******************Update DB (Userprofile) */
+
+      
+  
+      
+
+      var db = firebase.firestore();
+        
+                db.collection("userProfile").doc(userId).update("Address", address0 );
+                db.collection("userProfile").doc(userId).update("lat", lat0);
+                db.collection("userProfile").doc(userId).update("lng", lng0);
+
+            
+    
+
+      
+
+      /****************** */
+
+
+
+  }
+
+  
+
+
+
+
+
+  // This function makes an http call to google api to decode the cordinates
+
+  private getAddress(lat: number, lan: number) {
+    return this.http
+      .get<any>(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lan}&key=${
+          environment.googleMapsAPIKey
+        }`
+      )
+      .pipe(
+        map(geoData => {
+          if (!geoData || !geoData.results || geoData.results === 0) {
+            return null;
+          }
+          return geoData.results[0].formatted_address;
+        })
+      );
+  }
+  
+  
+    // function to display the toast with location and dismiss button
+
+    async presentToast() {
+      const toast = await this.toastController.create({
+        message: this.address,
+  
+        position: "middle",
+        buttons: [
+          {
+            icon: "close-circle",
+            role: "cancel"
+          }
+        ]
+      });
+      toast.present();
+    }
+  
+    // click function to display a toast message with the address
+  
+    onMarkerClick() {
+      this.presentToast();
+    }
+
+
+
 
   async Logout(): Promise<void>  {
   this.authservice.logoutUser().then(
@@ -149,18 +281,20 @@ export class HomePage implements OnDestroy, OnInit {
 
   CreateRecord() {
     let record = {};
-    record['Name'] = this.studentName;
-    record['Age'] = this.studentAge;
-    record['Address'] = this.studentAddress;
-    this.crudService.create_NewStudent(record).then(resp => {
-      this.studentName = "";
-      this.studentAge = undefined;
-      this.studentAddress = "";
+    record['Name'] = this.UserName;
+    record['Age'] = this.UserAge;
+    record['Address'] = this.address;
+    /***************************** */
+    this.crudService.create_NewUser(record).then(resp => {
+      this.UserName = "";
+      this.UserAge = undefined;
+      this.address = "";
       console.log(resp);
     })
       .catch(error => {
         console.log(error);
       });
+      /*********************************** */
   }
 
   CreateMessage() {
@@ -168,11 +302,11 @@ export class HomePage implements OnDestroy, OnInit {
     record['Theme'] = this.Theme;
     record['Message'] = this.Message;
     record['User'] = this.user;
+
     
     this.crudService.create_NewMessage(record).then(resp => {
-      this.studentName = "";
-      this.studentAge = undefined;
-      this.studentAddress = "";
+      
+      //this.address = this.address;
       console.log(resp);
     })
       .catch(error => {
@@ -182,7 +316,7 @@ export class HomePage implements OnDestroy, OnInit {
 
  
   RemoveRecord(rowID) {
-    this.crudService.delete_Student(rowID);
+    this.crudService.delete_User(rowID);
   }
  
   EditRecord(record) {
@@ -197,7 +331,7 @@ export class HomePage implements OnDestroy, OnInit {
     record['Name'] = recordRow.EditName;
     record['Age'] = recordRow.EditAge;
     record['Address'] = recordRow.EditAddress;
-    this.crudService.update_Student(recordRow.id, record);
+    this.crudService.update_User(recordRow.id, record);
     recordRow.isEdit = false;
   }
 }

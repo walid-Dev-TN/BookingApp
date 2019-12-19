@@ -8,11 +8,11 @@ export class CrudService {
 
   constructor(private firestore: AngularFirestore) { }
 
-  create_NewStudent(record) {
-    return this.firestore.collection('Passagers').add(record);
+  create_NewUser(record) {
+    return this.firestore.collection('userProfile').add(record);
   }
-  read_Students() {
-    return this.firestore.collection('Passagers').snapshotChanges();
+  read_Users() {
+    return this.firestore.collection('userProfile').snapshotChanges();
   }
 
   create_NewMessage(record) {
@@ -22,13 +22,12 @@ export class CrudService {
     return this.firestore.collection('Messages').snapshotChanges();
   }
  
-  
- 
-  update_Student(recordID,record){
-    this.firestore.doc('Passagers/' + recordID).update(record);
+   
+  update_User(recordID,record){
+    this.firestore.doc('userProfile/' + recordID).update(record);
   }
  
-  delete_Student(record_id) {
-    this.firestore.doc('Passagers/' + record_id).delete();
+  delete_User(record_id) {
+    this.firestore.doc('userProfile/' + record_id).delete();
   }
 }
