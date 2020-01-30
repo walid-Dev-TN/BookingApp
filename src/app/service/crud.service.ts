@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
+import * as firebase from 'firebase/app';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,12 @@ export class CrudService {
   read_Users() {
     return this.firestore.collection('userProfile').snapshotChanges();
   }
+
+  read_Drivers() {
+    return this.firestore.collection('userProfile', x => x.where('isDriver','==',true)).snapshotChanges();
+        
+  }
+
 
   create_NewMessage(record) {
     return this.firestore.collection('Messages').add(record);

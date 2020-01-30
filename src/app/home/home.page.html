@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Partager l'info!!!! & Current location
+      {{user}}
     </ion-title>
     
     <ion-buttons slot="secondary">
@@ -18,16 +18,37 @@
    <ion-content class="ion-padding">
        
     <ion-grid fixed>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+              Dernière location detectée!
+          </ion-item>
+        </ion-col>
+      </ion-row>
         <ion-row>
             <ion-col>
                 <ion-item>
-               <agm-map [latitude]="latme" [longitude]="lngme" [zoom]="15" #AgmMap>
-                  <agm-marker *ngFor="let position of Users" [title]="position.address" [latitude]="position.lat" [longitude]="position.lng"
-                    
-                       (markerClick)="onMarkerClick()"
-                  ></agm-marker>
+                    <ion-label>Veuillez sélectionner la date de votre voyage</ion-label>
+                    <ion-datetime displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+                      </ion-datetime>
+                  </ion-item>
+                  <ion-item>
+                      <ion-input placeholder="Destination" [(ngModel)]="Destination"></ion-input>
+                  </ion-item>
+                <ion-item >
+               <agm-map [latitude]="latme" [longitude]="lngme" [zoom]="6" #AgmMap>
+                 
+              
+                 
+                  <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng"
+                    (markerClick)="onMarkerClick(position)"></agm-marker>
+                  
+                   
+          
                 </agm-map>
             </ion-item>
+           
+             
           </ion-col>
       </ion-row>
       <ion-row>
@@ -48,7 +69,7 @@
             <ion-col   class="ion-text-center">
               <ion-button  (click)="CreateMessage()" [disabled]="!Theme || !Message">
                 <ion-icon size="small" slot="icon-only" name="add"></ion-icon>
-                &nbsp;Create Message with theme
+                &nbsp;Ajouter la notification!
               </ion-button>
             </ion-col>
       </ion-row>
@@ -63,7 +84,8 @@
       <ion-card-content>
           {{item.Message}}
       </ion-card-content>
-  </ion-card>      
+  </ion-card> 
+
    <ion-grid *ngIf="isAdmin" fixed>     
     <ion-row>
       <ion-col>
@@ -97,8 +119,8 @@
   <ion-card  *ngFor="let item of Users">
     <span *ngIf="!item.isEdit; else elseBlock">
       <ion-card-header>
-        <ion-card-title>{{item.Name}} of {{item.Age}} years</ion-card-title>
-        <ion-card-subtitle>From: {{item.Address}}</ion-card-subtitle>
+        <ion-card-title>{{item.email}} of {{item.Tel}}</ion-card-title>
+        <ion-card-subtitle>Est un: {{item.driver}}</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
  
@@ -136,16 +158,16 @@
       </ion-card-header>
       <ion-card-content>
         <ion-item>
-          <ion-label><strong>Name</strong></ion-label>
-          <ion-input type="text" [(ngModel)]="item.EditName"></ion-input>
+          <ion-label><strong>Nom (Email)</strong></ion-label>
+          <ion-input type="text" [(ngModel)]="item.email"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-label><strong>Age</strong></ion-label>
-          <ion-input type="text" [(ngModel)]="item.EditAge"></ion-input>
+          <ion-label><strong>Tel</strong></ion-label>
+          <ion-input type="text" [(ngModel)]="item.Tel"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-label><strong>Address</strong></ion-label>
-          <ion-input type="text" [(ngModel)]="item.EditAddress"></ion-input>
+          <ion-label><strong>Nature</strong></ion-label>
+          <ion-input type="text" [(ngModel)]="item.driver"></ion-input>
         </ion-item>
       </ion-card-content>
     </ng-template>
