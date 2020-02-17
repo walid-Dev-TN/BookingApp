@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>news</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-tabs>
+        <ion-tab-bar slot="bottom">
+          <ion-tab-button tab="home">
+            <ion-icon name="speedometer"></ion-icon>
+            <ion-label>Dashboard</ion-label>
+          </ion-tab-button>
+    
+          <ion-tab-button tab="news">
+            <ion-icon name="list"></ion-icon>
+            <ion-label>News</ion-label>
+          </ion-tab-button>
+        </ion-tab-bar>
+      </ion-tabs>
+
+    <ion-card *ngFor="let item of Messages">
+        <ion-card-header>
+          <ion-card-title>{{item.Theme}}</ion-card-title>
+          <ion-card-subtitle>From: {{item.User}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+            {{item.Message}}
+        </ion-card-content>
+    </ion-card> 
+    
+     <ion-grid>
+    
+      <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-input placeholder="Enter Theme" [(ngModel)]="Theme"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-input placeholder="Enter Message" [(ngModel)]="Message"></ion-input>
+            </ion-item>
+          </ion-col>
+    </ion-row>
+    
+    <ion-row>
+            <ion-col   class="ion-text-center">
+              <ion-button  (click)="CreateMessage()" [disabled]="!Theme || !Message">
+                <ion-icon size="small" slot="icon-only" name="add"></ion-icon>
+                &nbsp;Ajouter la notification!
+              </ion-button>
+            </ion-col>
+    </ion-row>
+    
+    </ion-grid>
+</ion-content>

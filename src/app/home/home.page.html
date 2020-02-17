@@ -1,4 +1,7 @@
 <ion-header>
+    
+    
+  
   <ion-toolbar>
     <ion-title>
       {{user}}
@@ -16,19 +19,76 @@
 </ion-header>
  
    <ion-content class="ion-padding">
+      <ion-tabs>
+          <ion-tab-bar slot="bottom">
+            <ion-tab-button tab="home">
+              <ion-icon name="speedometer"></ion-icon>
+              <ion-label>Dashboard</ion-label>
+            </ion-tab-button>
+      
+            <ion-tab-button tab="news">
+              <ion-icon name="list"></ion-icon>
+              <ion-label>News</ion-label>
+            </ion-tab-button>
+          </ion-tab-bar>
+        </ion-tabs>
+
+
+    <ion-grid *ngIf="isDriver" fixed> 
        
-    <ion-grid fixed>
+        <ion-row>
+            <ion-col>
+                    <ion-item>
+                        <ion-label>Votre date de départ</ion-label>
+                        <ion-datetime displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+                          </ion-datetime>
+                      </ion-item>
+                      <ion-item>
+                          <ion-label>Votre destination</ion-label>
+                          <ion-input placeholder="Destination" [(ngModel)]="Destination"></ion-input>
+                      </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-item>
+            <ion-label>{{ResNbr}} réservations </ion-label>
+            </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let resv of Reservations">
+            <ion-col>
+                <ion-item>
+                    
+                    <ion-card >
+                        <ion-card-header>
+                          <ion-card-title></ion-card-title>
+                         
+                        </ion-card-header>
+                        <ion-card-content>
+                         Tel:{{resv.ResTel}} Au nom de:{{resv.ResUserName}}
+                        </ion-card-content>
+                    </ion-card> 
+                </ion-item>
+            </ion-col>
+        </ion-row>
+
+    </ion-grid>
+
+
+
+    <ion-grid *ngIf="!isDriver" fixed> 
       <ion-row>
         <ion-col>
           <ion-item>
-              Dernière location detectée!
+              Dernières positions detectées!
           </ion-item>
         </ion-col>
       </ion-row>
         <ion-row>
             <ion-col>
                 <ion-item>
-                    <ion-label>Veuillez sélectionner la date de votre voyage</ion-label>
+                    <ion-label>Date de votre voyage</ion-label>
                     <ion-datetime displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
                       </ion-datetime>
                   </ion-item>
@@ -51,69 +111,7 @@
              
           </ion-col>
       </ion-row>
-      <ion-row>
-          <ion-col>
-            <ion-item>
-              <ion-input placeholder="Enter Theme" [(ngModel)]="Theme"></ion-input>
-            </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item>
-              <ion-input placeholder="Enter Message" [(ngModel)]="Message"></ion-input>
-            </ion-item>
-          </ion-col>
-     
-      </ion-row>
-
-      <ion-row>
-            <ion-col   class="ion-text-center">
-              <ion-button  (click)="CreateMessage()" [disabled]="!Theme || !Message">
-                <ion-icon size="small" slot="icon-only" name="add"></ion-icon>
-                &nbsp;Ajouter la notification!
-              </ion-button>
-            </ion-col>
-      </ion-row>
-
-    </ion-grid>
-
- <ion-card *ngFor="let item of Messages">
-      <ion-card-header>
-        <ion-card-title>{{item.Theme}}</ion-card-title>
-        <ion-card-subtitle>From: {{item.User}}</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-          {{item.Message}}
-      </ion-card-content>
-  </ion-card> 
-
-   <ion-grid *ngIf="isAdmin" fixed>     
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          <ion-input placeholder="Enter Name" [(ngModel)]="UserName"></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col>
-        <ion-item>
-          <ion-input placeholder="Enter Age" [(ngModel)]="UserAge"></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col>
-        <ion-item>
-          <ion-input placeholder="Enter Address" [(ngModel)]="address"></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-
-    <ion-row>
-      <ion-col   class="ion-text-center">
-        <ion-button  (click)="CreateRecord()" [disabled]="!UserName || !UserAge || !address">
-          <ion-icon size="small" slot="icon-only" name="add"></ion-icon>
-          &nbsp;Create Record
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+      </ion-grid>
  
  <span *ngIf="isAdmin"> 
   <ion-card  *ngFor="let item of Users">

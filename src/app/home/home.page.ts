@@ -33,6 +33,7 @@ export class HomePage implements OnDestroy, OnInit {
   public Users: any;
   public Drivers: any;
   public SelectedUser: any;
+  public SelectedDriver: boolean = false;
   public SelectedUserId: any;
   public SelectedUserTel: any;
   public NbrReservations: any;
@@ -65,7 +66,13 @@ export class HomePage implements OnDestroy, OnInit {
   public loading: HTMLIonLoadingElement;
 
   public isAdmin: boolean = false;
-  public isDriver = false;
+  public isDriver: boolean = false;
+  public email: string;
+  public isClient = false;
+  public Reservations: any;
+  public ResNbr: number;
+  
+
   public user: string;
   public Mytoken: any;
 
@@ -80,10 +87,18 @@ export class HomePage implements OnDestroy, OnInit {
      
       this.Users = data.map(e => {
         var driver: string = "";
+        
         if(e.payload.doc.data()['isDriver'])
+       {
           driver = "chauffeur";
+
+       
+       }
+       
         else
+      
           driver = "Client"
+       
         return {
           email: e.payload.doc.data()['email'],
           address: e.payload.doc.data()['Address'],
@@ -104,6 +119,7 @@ this.crudService.read_Drivers().subscribe(data => {
   return {
           
     address: e.payload.doc.data()['Address'],
+    email: e.payload.doc.data()['email'],
     lat: e.payload.doc.data()['lat'],
     lng: e.payload.doc.data()['lng'],
     Tel: e.payload.doc.data()['Tel'],
@@ -121,8 +137,22 @@ this.crudService.read_Drivers().subscribe(data => {
      firebase.auth().onAuthStateChanged(user => {
       if (user) {
 
-          // call get current location function on initializing
+     
+     
+     
+     
+     
+     
+     
+     
+     
+        // call get current location function on initializing
             this.getCurrentLocation(user.uid);
+
+            
+
+
+
 
         firebase
           .firestore()
@@ -138,6 +168,10 @@ this.crudService.read_Drivers().subscribe(data => {
 
 
             this.isAdmin = userProfileSnapshot.data().isAdmin;
+
+            this.isDriver = userProfileSnapshot.data().isDriver;
+
+          
 /*************************************************
 
             /********************************************
@@ -158,56 +192,39 @@ this.crudService.read_Drivers().subscribe(data => {
             if(this.isAdmin)
             console.log("Admin");
             else
+            {
+                
+        /*****************Tentatives précedentes******************* */
+this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.user)).snapshotChanges().subscribe(  data => {
+  this.ResNbr =  data.length;
+
+  this.Reservations = data.map(e => {
+      return {
+        id: e.payload.doc.id,
+        ResUserName: e.payload.doc.data()['Client'],
+        
+        ResTel: e.payload.doc.data()['Tel']
+      };
+    });
+ 
+
+  console.log("Nbre de reservations reçus: " + this.ResNbr);
+});
+/***********************************************************/
+
+
+
+
+
             console.log("Utilisateur normal");
+
+            }
           });
       }
     });
 
 
-    
-    this.crudService.read_Messages().subscribe(data => {
  
-      this.Messages = data.map(e => {
-        return {
-          id: e.payload.doc.id,
-          isEdit: false,
-          Theme: e.payload.doc.data()['Theme'],
-          Message: e.payload.doc.data()['Message'],
-          User: e.payload.doc.data()['User']
-        };
-      })
-      console.log(this.Messages);
-/*****************************************************
-
-    const httpOptions = {
-      headers: new HttpHeaders({
-        "Accept": 'application/json',
-        'Content-Type':  'application/json'
-        })
-      };
-
-    let postData : {
-       
-        "notification":
-         {
-          "title": "Test title",
-          "body": "Test Body",
-          "click_action" : "https://github.com/walid-Dev-TN/BookingApp"
-         },
-         
-         "to" : "",
-        
-    };
-
-    this.httpClient.post("https://fcm.googleapis.com/fcm/send", postData, httpOptions)
-      .subscribe(data => {
-        console.log("Message envoyé portant sur le theme" + this.Theme);
-       }, error => {
-        console.log(error);
-      });
-****************************************************** */
-  
-    });
 
   }
  
@@ -236,8 +253,20 @@ this.crudService.read_Drivers().subscribe(data => {
       /******************Update DB (Userprofile) */
 
       
+      await firebase
+      .firestore()
+      .doc(`/userProfile/${userId}`)
+      .get()
+      .then(userProfileSnapshot => {
+        this.email = userProfileSnapshot.data().email;
+      });
+
+
+
+
+
   
-      let latlng = this.latme.toString() + "" + this.lngme.toString();
+      let latlng = this.latme.toString() + "" + this.lngme.toString() + this.email ;
 
       var db = firebase.firestore();
         
@@ -270,12 +299,29 @@ this.crudService.read_Drivers().subscribe(data => {
       );
   }
   
+
+
+  onMarkerClick(event) {
+    this.presentToast(event);
+  }
   
     // function to display the toast with location and dismiss button
 
     async presentToast(event) {
      
-      let latlgn = event.lat.toString() + event.lng.toString();
+
+      await this.firestore.collection('ReservationsList', x => x.where('Driver','==', event.email)).snapshotChanges().subscribe(data => {
+        if(data.length > 0)
+        {
+          this.NbrReservations = data.length;
+          console.log("------------------------" + this.NbrReservations);
+        }  
+        else
+        this.NbrReservations = 0;
+      
+      });
+      
+      let latlgn = event.lat.toString() + event.lng.toString() + event.email.toString();
       var db = firebase.firestore();
        db.collection("userProfile").where("latlng","==",latlgn).get()
       .then( querySnapshot => {
@@ -290,43 +336,19 @@ firebase
 .firestore()
 .doc(`/userProfile/${this.SelectedUserId}`)
 .get()
-.then(userProfileSnapshot => {
-  this.NbrReservations = userProfileSnapshot.data().NbrReservations;
-  this.isDriver = userProfileSnapshot.data().isDriver;
+.then( userProfileSnapshot => {
+  //this.NbrReservations = userProfileSnapshot.data().NbrReservations;
+  //this.NbrReservations = 1;
+  this.SelectedDriver = userProfileSnapshot.data().isDriver;
   this.SelectedUser = userProfileSnapshot.data().email;
   this.SelectedUserTel = userProfileSnapshot.data().Tel;
-/**********************
-  firebase.database().ref(`userProfile/${this.SelectedUserId}/NbrReservations`).once("value", snapshot => {
-    if (snapshot.exists()){
-  this.NbrReservations = userProfileSnapshot.data().NbrReservations;
-    }
-    else
-    {
-      this.NbrReservations = 0;
-    }
-  });
-
-
-  firebase.database().ref(`userProfile/${this.SelectedUserId}/isDriver`).once("value", snapshot => {
-    if (snapshot.exists()){
-  this.isDriver = userProfileSnapshot.data().isDriver;
-    
-  //this.NbrReservations = userProfileSnapshot.data().NbrReservations;
- 
-    }
-  });
-  //console.log(user.uid);
-  firebase.database().ref(`userProfile/${this.SelectedUserId}/email`).once("value", snapshot => {
-    if (snapshot.exists()){
-  this.SelectedUser = userProfileSnapshot.data().email;
-    }
-  });
-*********************************/
 
 
 }).then(async  () => {
+
+  
   var driver: any;
-  if(this.isDriver)
+  if(this.SelectedDriver)
   driver = 'le chauffeur';
   else
   driver = '';
@@ -348,7 +370,7 @@ firebase
      text: 'RESERVER',
       handler: () => {
         this.onToastClick(event.email, event.Tel, event.lat.toString(), event.lng.toString()).then(()=>{
-            // do something after page transition?
+           
         })
      },
     }
@@ -380,11 +402,8 @@ toast.present();
       
     }
   
-    // click function to display a toast message with the address
   
-    onMarkerClick(event) {
-      this.presentToast(event);
-    }
+    
 
     async onToastClick(email:string, Tel:string, lat:string , lng:string){
 
@@ -417,24 +436,21 @@ toast.present();
 
 
 
-
-
-
-
-
-
-
-
       var db = firebase.firestore();
       db.collection("userProfile").where("email","==", this.SelectedUser).get()
-      .then( querySnapshot => {
+      .then( async querySnapshot => {
 
 /*****************Tentatives précedentes******************* */
-this.firestore.collection('ReservationsList', x => x.where('Client','==',this.user)).snapshotChanges().subscribe(  data => {
+await this.firestore.collection('ReservationsList', x => x.where('Client','==',this.user)).snapshotChanges().subscribe(  data => {
   this.existe =  data.length ;
   console.log('Tentatives précedentes:' + this.existe);
 });
 /********************************************************** */
+
+
+
+
+
 
           querySnapshot.forEach( doc => {
             console.log(doc.id, " => ", doc.data());
@@ -445,26 +461,25 @@ this.firestore.collection('ReservationsList', x => x.where('Client','==',this.us
 .then(  userProfileSnapshot => {
 
     //console.log(user.uid);
-    console.log('NbrReservations:'  + userProfileSnapshot.data().NbrReservations);
+    console.log('NbrReservations du chauffeur selectionné:'  + this.NbrReservations);
       /******************************* */
-      if(userProfileSnapshot.data().NbrReservations < 8){
+      if(this.NbrReservations < 8){
        
         
         if(this.existe == 0)
         {
         let record = {};
         record['Client'] = this.user;
-        record['lat'] = lat;
-        record['lng'] = lng;
+        record['Tel'] = userProfileSnapshot.data().Tel;
         record['Driver']= this.SelectedUser;
        // record['NbrReservations'] = this.NbrReservations + 1;
       this.firestore.collection('ReservationsList').add(record).then( resp => {
         
-        db.collection("userProfile").doc(`${doc.id}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
+      //  db.collection("userProfile").doc(`${doc.id}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
         //this.address = this.address;
         console.log(resp);
         console.log("Reservation faite avec succès!");
-      });
+      //});
       })
         .catch(error => {
           console.log(error);
@@ -514,47 +529,6 @@ this.firestore.collection('ReservationsList', x => x.where('Client','==',this.us
   }
 
 
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-}
-
-  CreateRecord() {
-    let record = {};
-    record['Name'] = this.UserName;
-    record['Age'] = this.UserAge;
-    record['Address'] = this.address;
-    /***************************** */
-    this.crudService.create_NewUser(record).then(resp => {
-      this.UserName = "";
-      this.UserAge = undefined;
-      this.address = "";
-      console.log(resp);
-    })
-      .catch(error => {
-        console.log(error);
-      });
-      /*********************************** */
-  }
-
-  CreateMessage() {
-    let record = {};
-    record['Theme'] = this.Theme;
-    record['Message'] = this.Message;
-    record['User'] = this.user;
-
-    
-    this.crudService.create_NewMessage(record).then(resp => {
-      
-      //this.address = this.address;
-      console.log(resp);
-    })
-      .catch(error => {
-        console.log(error);
-      });
-  }
-
- 
   RemoveRecord(rowID) {
     this.crudService.delete_User(rowID);
   }
@@ -574,4 +548,30 @@ this.firestore.collection('ReservationsList', x => x.where('Client','==',this.us
     this.crudService.update_User(recordRow.id, record);
     recordRow.isEdit = false;
   }
+
+  CreateRecord() {
+    let record = {};
+    record['Name'] = this.UserName;
+    record['Age'] = this.UserAge;
+    record['Address'] = this.address;
+    /***************************** */
+    this.crudService.create_NewUser(record).then(resp => {
+      this.UserName = "";
+      this.UserAge = undefined;
+      this.address = "";
+      console.log(resp);
+    })
+      .catch(error => {
+        console.log(error);
+      });
+      /*********************************** */
+  }
+
+
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+}
+
 }
