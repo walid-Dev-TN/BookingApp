@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
 import { AngularFireModule } from '@angular/fire';
+import {AngularFireMessagingModule} from '@angular/fire/messaging';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 
 import { AngularFirestoreModule } from '@angular/fire/firestore';
@@ -25,10 +26,12 @@ import { ServiceWorkerModule } from '@angular/service-worker';
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule,
     
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireMessagingModule,
     AngularFirestoreModule,
     AngularFireDatabaseModule,
     AngularFireAuthModule,
-    ServiceWorkerModule.register('firebase-messaging-sw.js', { enabled: environment.production })
+    ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })
+    
   ],
   providers: [
     StatusBar,

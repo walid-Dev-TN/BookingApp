@@ -42,6 +42,7 @@ export class HomePage implements OnDestroy, OnInit {
   public current;
   public existe: number = -1;
   public Mysnapshot: any;
+ 
   UserName: string;
   UserAge: number;
   address: string;
@@ -75,6 +76,7 @@ export class HomePage implements OnDestroy, OnInit {
 
   public user: string;
   public Mytoken: any;
+  private geoCoder;
 
   constructor( private firestore: AngularFirestore, private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router,
     private http: HttpClient,
@@ -90,14 +92,10 @@ export class HomePage implements OnDestroy, OnInit {
         
         if(e.payload.doc.data()['isDriver'])
        {
-          driver = "chauffeur";
-
-       
+          driver = "chauffeur"; 
        }
-       
         else
-      
-          driver = "Client"
+          driver = "Client";
        
         return {
           email: e.payload.doc.data()['email'],
@@ -137,22 +135,8 @@ this.crudService.read_Drivers().subscribe(data => {
      firebase.auth().onAuthStateChanged(user => {
       if (user) {
 
-     
-     
-     
-     
-     
-     
-     
-     
-     
         // call get current location function on initializing
             this.getCurrentLocation(user.uid);
-
-            
-
-
-
 
         firebase
           .firestore()
@@ -160,18 +144,14 @@ this.crudService.read_Drivers().subscribe(data => {
           .get()
           .then(  userProfileSnapshot => {
 
-
             console.log(user.uid);
-            if (userProfileSnapshot.data().email)
+           if (userProfileSnapshot.data().email)
             this.user = userProfileSnapshot.data().email;
-
-
 
             this.isAdmin = userProfileSnapshot.data().isAdmin;
 
             this.isDriver = userProfileSnapshot.data().isDriver;
-
-          
+         
 /*************************************************
 
             /********************************************
@@ -212,19 +192,12 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
 });
 /***********************************************************/
 
-
-
-
-
             console.log("Utilisateur normal");
 
             }
           });
       }
     });
-
-
- 
 
   }
  
@@ -239,16 +212,18 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
      lng0 = result.coords.longitude;
       this.latme = lat0;
       this.lngme = lng0;
-    
-      
+         
       // calling getAddress function to decode the address
      
       });
 
-      this.getAddress(this.latme, this.lngme).subscribe(decodedAddress => {
-        this.address0 = decodedAddress;
-       
-      });
+      // Activer cet appel quand vous payerez l'accès à cette API google
+      //this.getAddress(this.latme, this.lngme).subscribe(decodedAddress => {
+      //  this.address0 = decodedAddress;
+      //});
+      
+      this.address0 = "Quelque part dans le monde"
+
       console.log(this.address0);
       /******************Update DB (Userprofile) */
 
@@ -261,11 +236,6 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
         this.email = userProfileSnapshot.data().email;
       });
 
-
-
-
-
-  
       let latlng = this.latme.toString() + "" + this.lngme.toString() + this.email ;
 
       var db = firebase.firestore();
@@ -279,7 +249,7 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
 
   }
 
-  
+ 
   // This function makes an http call to google api to decode the cordinates
 
    private getAddress(lat: number, lan: number) {
@@ -308,8 +278,7 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
     // function to display the toast with location and dismiss button
 
     async presentToast(event) {
-     
-
+    
       await this.firestore.collection('ReservationsList', x => x.where('Driver','==', event.email)).snapshotChanges().subscribe(data => {
         if(data.length > 0)
         {
@@ -381,25 +350,16 @@ toast.present();
 
 });
 
-
-
 /****************************************** */
-              
-              
-              
+         
              // this.SelectedUser = doc.data().email;
             });
-
 
       })
       .catch(function(error) {
           console.log("Error getting documents: ", error);
       });
-
-   
   
-
-      
     }
   
   
@@ -446,11 +406,6 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
   console.log('Tentatives précedentes:' + this.existe);
 });
 /********************************************************** */
-
-
-
-
-
 
           querySnapshot.forEach( doc => {
             console.log(doc.id, " => ", doc.data());

@@ -1,10 +1,8 @@
-<ion-header>
-    
-    
+<ion-header [translucent]="true">
   
-  <ion-toolbar>
+  <ion-toolbar color="danger">
     <ion-title>
-      {{user}}
+      {{email}}
     </ion-title>
     
     <ion-buttons slot="secondary">
@@ -18,7 +16,7 @@
   </ion-toolbar>
 </ion-header>
  
-   <ion-content class="ion-padding">
+   <ion-content [fullscreen]="true" class="ion-padding">
       <ion-tabs>
           <ion-tab-bar slot="bottom">
             <ion-tab-button tab="home">
@@ -38,15 +36,19 @@
        
         <ion-row>
             <ion-col>
-                    <ion-item>
-                        <ion-label>Votre date de départ</ion-label>
-                        <ion-datetime displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
-                          </ion-datetime>
-                      </ion-item>
-                      <ion-item>
-                          <ion-label>Votre destination</ion-label>
-                          <ion-input placeholder="Destination" [(ngModel)]="Destination"></ion-input>
-                      </ion-item>
+              <ion-item>
+                
+                <ion-select placeholder="Choisir votre destination" >
+                  <ion-select-option value="KT">Tunis</ion-select-option>
+                  <ion-select-option value="TK">Kébili</ion-select-option>
+                </ion-select>
+            </ion-item>  
+              <ion-item>
+                   
+                    <ion-datetime placeholder="Date du voyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+                      </ion-datetime>
+                  </ion-item>
+              
             </ion-col>
         </ion-row>
         <ion-row>
@@ -81,31 +83,27 @@
       <ion-row>
         <ion-col>
           <ion-item>
-              Dernières positions detectées!
+              Réserver maintenant votre place!
           </ion-item>
         </ion-col>
       </ion-row>
         <ion-row>
             <ion-col>
-                <ion-item>
-                    <ion-label>Date de votre voyage</ion-label>
-                    <ion-datetime displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+              <ion-item>
+                
+                <ion-select placeholder="Choisir votre destination" >
+                  <ion-select-option value="KT">Tunis</ion-select-option>
+                  <ion-select-option value="TK">Kébili</ion-select-option>
+                </ion-select>
+            </ion-item>  
+              <ion-item>
+                   
+                    <ion-datetime placeholder="Date du voyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
                       </ion-datetime>
                   </ion-item>
-                  <ion-item>
-                      <ion-input placeholder="Destination" [(ngModel)]="Destination"></ion-input>
-                  </ion-item>
-                <ion-item >
-               <agm-map [latitude]="latme" [longitude]="lngme" [zoom]="6" #AgmMap>
-                 
-              
-                 
-                  <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng"
-                    (markerClick)="onMarkerClick(position)"></agm-marker>
                   
-                   
-          
-                </agm-map>
+                <ion-item >
+              
             </ion-item>
            
              
@@ -113,6 +111,13 @@
       </ion-row>
       </ion-grid>
  
+
+      <agm-map [latitude]="latme" [longitude]="lngme" class="MyAgm"   #AgmMap>
+        <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng"
+          (markerClick)="onMarkerClick(position)"></agm-marker>
+      </agm-map>
+
+
  <span *ngIf="isAdmin"> 
   <ion-card  *ngFor="let item of Users">
     <span *ngIf="!item.isEdit; else elseBlock">
@@ -132,7 +137,7 @@
         </ion-button>
       </ion-card-content>
     </span>
-    <ng-template #elseBlock>
+   <ng-template #elseBlock>
       <ion-card-header>
         <ion-card-title>
           <ion-grid>

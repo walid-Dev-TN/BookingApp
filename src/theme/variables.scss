@@ -77,6 +77,26 @@
 }
 
 agm-map {
-  height: 300px !important;
+  height: 80vh !important;
   width: 100%;  /* This is really important*/
 }
+
+ion-grid {
+  height: 10vh !important;
+  width: 100%;  /* This is really important*/
+}
+
+ion-header{
+  height: 10vh !important;
+  width: 100%;  /* This is really important*/
+} 
+
+$colors: (
+    primary:    #387ef5,
+    secondary:  #32db64,
+    danger:     #f53d3d,
+    light:      #f4f4f4,
+    dark:       #222,
+    customColor: #009688
+
+    );
