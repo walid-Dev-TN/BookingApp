@@ -77,12 +77,12 @@
 }
 
 agm-map {
-  height: 80vh !important;
+  height: 90vh !important;
   width: 100%;  /* This is really important*/
 }
 
-ion-grid {
-  height: 10vh !important;
+ion-fab {
+  height: 90vh !important;
   width: 100%;  /* This is really important*/
 }
 
@@ -90,6 +90,17 @@ ion-header{
   height: 10vh !important;
   width: 100%;  /* This is really important*/
 } 
+
+ion-select{
+  width: 100%; 
+}
+
+ion-datetime{
+  width: 100%; 
+}
+ion-item{
+  width: 100%; 
+}
 
 $colors: (
     primary:    #387ef5,

@@ -19,6 +19,7 @@ import { ToastController } from "@ionic/angular";
 
 
 import { AngularFirestore } from '@angular/fire/firestore';
+import { stringify } from 'querystring';
 
 //import { HttpClient, HttpHeaders} from '@angular/common/http';
 
@@ -42,7 +43,7 @@ export class HomePage implements OnDestroy, OnInit {
   public current;
   public existe: number = -1;
   public Mysnapshot: any;
- 
+  public selected_value0;
   UserName: string;
   UserAge: number;
   address: string;
@@ -72,9 +73,11 @@ export class HomePage implements OnDestroy, OnInit {
   public isClient = false;
   public Reservations: any;
   public ResNbr: number;
-  
-
+  public Direction: string;
+  public DatesVoyages: any;
+  public NbrVoyages: number;
   public user: string;
+  public userId: string;
   public Mytoken: any;
   private geoCoder;
 
@@ -121,7 +124,7 @@ this.crudService.read_Drivers().subscribe(data => {
     lat: e.payload.doc.data()['lat'],
     lng: e.payload.doc.data()['lng'],
     Tel: e.payload.doc.data()['Tel'],
-    
+    Dir: e.payload.doc.data()['Dir'],
   };
 
 });
@@ -147,26 +150,12 @@ this.crudService.read_Drivers().subscribe(data => {
             console.log(user.uid);
            if (userProfileSnapshot.data().email)
             this.user = userProfileSnapshot.data().email;
-
+            this.userId = user.uid;
             this.isAdmin = userProfileSnapshot.data().isAdmin;
 
             this.isDriver = userProfileSnapshot.data().isDriver;
-         
-/*************************************************
 
-            /********************************************
-              firebase.database().ref(`userProfile/${user.uid}/isAdmin`).once("value").then( snapshot => {
-              if (snapshot.exists()){
-                this.Mysnapshot = snapshot.val();
-            
-              }
-            }).then(() => {
-
-              console.log("" + this.Mysnapshot);
-              this.isAdmin = this.Mysnapshot.isAdmin;
-             
-            });
-            /********************************************** */
+            this.Direction = userProfileSnapshot.data().Dir;
             
           }).then(() => {
             if(this.isAdmin)
@@ -274,6 +263,7 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
   onMarkerClick(event) {
     this.presentToast(event);
   }
+
   
     // function to display the toast with location and dismiss button
 
@@ -522,7 +512,128 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
       /*********************************** */
   }
 
+/*************************************************** */
+  latlngChange(email: string){
+    var query = firebase.firestore().collection("userProfile").where('email','==', email).where('isDriver','==', true);
+    //var query2 = query.where('Dir','==', this.Direction);
+    //var query3 = query2.where('isDriver','==', true);
+  
+    query.get().then(snap => {
+   //   this.NbrVoyages =  snap.size;
+      snap.forEach(doc => {
+      this.latme = doc.data()['lat'];
+      this.lngme = doc.data()['lng'];
+    //  this.Drivers.push(doc.data()); !!!!!!!!!!!!!
+  
+     
+      });
+     
+  });
+}
+/**************************************************************** */
 
+  DirChange()
+  {
+   /***********************************************************/ 
+
+   this.DatesVoyages = [];
+    var query = firebase.firestore().collection("userProfile").where('Dir','==', this.Direction).where('isDriver','==', true);
+    //var query2 = query.where('Dir','==', this.Direction);
+    //var query3 = query2.where('isDriver','==', true);
+  
+    query.get().then(snap => {
+      this.NbrVoyages =  snap.size;
+      snap.forEach(doc => {
+      this.DatesVoyages.push(doc.data());
+         
+      console.log(this.DatesVoyages);
+      console.log(this.NbrVoyages);
+      });
+    
+  });
+   
+ 
+   /*********************************************
+   
+    this.firestore.collection('userProfile', x => x.where('Dir','==', this.Direction)).snapshotChanges().subscribe(data => {
+      this.NbrVoyages =  data.length;
+  this.DatesVoyages = data.map(e => {
+      return {
+        Date: e.payload.doc.data()['Date_voyage'],
+        Driver: e.payload.doc.data()['Driver'],
+        confirme: e.payload.doc.data()['confirme'],
+        destination: e.payload.doc.data()['destination']
+      };
+    });
+   });
+/***********************************************/
+
+
+  }
+
+  formatDate(DateString: string): string {
+    var d = new Date(DateString);
+      var  month = '' + (d.getMonth() + 1);
+       var day = '' + d.getDate();
+      var  year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return day + "-" + month + "-" + year;
+    
+} 
+
+  dateChanged()
+  {
+    let record = {};
+    record['Date_voyage'] = this.DateVoyage;
+    record['Driver'] = this.user;
+    record['confirme']= true;
+    record['destination']= this.Destination;
+
+    this.firestore.collection('VoyagesList').add(record).then( resp => {
+        
+      //  db.collection("userProfile").doc(`${doc.id}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
+        //this.address = this.address;
+       
+
+
+        console.log(resp);
+        console.log("Date du voyage ajouté faite avec succès!");
+      //});
+      })
+        .catch(error => {
+          console.log(error);
+        });
+
+        var db = firebase.firestore();
+        
+        db.collection("userProfile").doc(this.userId).update("Dir", this.Destination ).then( resp => {
+        
+            
+    
+            console.log(resp);
+            console.log("Dir changée avec succès!");
+  
+          })
+            .catch(error => {
+              console.log(error);
+            });
+
+            db.collection("userProfile").doc(this.userId).update("Date_Depart", this.DateVoyage ).then( resp => {
+        
+            
+    
+              console.log(resp);
+              console.log("Date de départ changée avec succès!");
+    
+            })
+              .catch(error => {
+                console.log(error);
+              });
+ 
+  }
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();

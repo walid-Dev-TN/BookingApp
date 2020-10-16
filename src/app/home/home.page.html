@@ -2,9 +2,9 @@
   
   <ion-toolbar color="danger">
     <ion-title>
-      {{email}}
+      Blassa 
     </ion-title>
-    
+   
     <ion-buttons slot="secondary">
       <ion-button (click)="Logout()">
         <ion-icon slot="icon-only" name="contact"  ></ion-icon>
@@ -14,11 +14,17 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <span style="font-size: 14px">Welcome {{email}} >> Dashboard</span>
 </ion-header>
+
+
  
-   <ion-content [fullscreen]="true" class="ion-padding">
-      <ion-tabs>
-          <ion-tab-bar slot="bottom">
+   <ion-content class="ion-padding"> 
+
+   
+    
+        <ion-tabs>
+          <ion-tab-bar slot="fixed">
             <ion-tab-button tab="home">
               <ion-icon name="speedometer"></ion-icon>
               <ion-label>Dashboard</ion-label>
@@ -30,34 +36,28 @@
             </ion-tab-button>
           </ion-tab-bar>
         </ion-tabs>
+    
 
+<span *ngIf="isDriver && !isAdmin" vertical="top">
+  
 
-    <ion-grid *ngIf="isDriver" fixed> 
-       
-        <ion-row>
-            <ion-col>
               <ion-item>
                 
-                <ion-select placeholder="Choisir votre destination" >
+                <ion-select placeholder="Choisir votre destination" [(ngModel)]="Destination">
                   <ion-select-option value="KT">Tunis</ion-select-option>
                   <ion-select-option value="TK">Kébili</ion-select-option>
                 </ion-select>
-            </ion-item>  
-              <ion-item>
+            
                    
-                    <ion-datetime placeholder="Date du voyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+                  <ion-datetime placeholder="Date du voyage" (ionChange)="dateChanged()" [(ngModel)]="DateVoyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
                       </ion-datetime>
                   </ion-item>
               
-            </ion-col>
-        </ion-row>
-        <ion-row>
-            <ion-col>
+           
                 <ion-item>
             <ion-label>{{ResNbr}} réservations </ion-label>
             </ion-item>
-            </ion-col>
-        </ion-row>
+         <ion-grid>
         <ion-row *ngFor="let resv of Reservations">
             <ion-col>
                 <ion-item>
@@ -77,48 +77,41 @@
 
     </ion-grid>
 
+  </span>
 
-
-    <ion-grid *ngIf="!isDriver" fixed> 
-      <ion-row>
-        <ion-col>
-          <ion-item>
-              Réserver maintenant votre place!
-          </ion-item>
-        </ion-col>
-      </ion-row>
-        <ion-row>
-            <ion-col>
-              <ion-item>
-                
-                <ion-select placeholder="Choisir votre destination" >
+<span *ngIf="!isDriver && !isAdmin" vertical="top">
+    
+           <ion-item>
+                <ion-select [(ngModel)]="Direction" (ionChange)="DirChange()">
                   <ion-select-option value="KT">Tunis</ion-select-option>
                   <ion-select-option value="TK">Kébili</ion-select-option>
                 </ion-select>
-            </ion-item>  
-              <ion-item>
-                   
-                    <ion-datetime placeholder="Date du voyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
-                      </ion-datetime>
-                  </ion-item>
-                  
-                <ion-item >
-              
-            </ion-item>
-           
-             
-          </ion-col>
-      </ion-row>
-      </ion-grid>
- 
+           </ion-item>
+           <ion-item>
+                <ion-select [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
+                  <ion-select-option *ngFor="let date_voyage of DatesVoyages" [value]="date_voyage.email">
+                    {{date_voyage.Date_depart}}:{{date_voyage.email}}
+                  </ion-select-option>
+                </ion-select>
+           </ion-item>
+                 
+    <agm-map [zoom]="18" [latitude]="latme" [longitude]="lngme" class="MyAgm"   #AgmMap [mapTypeId]="'hybrid'">
+      <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng" [label]="position.Dir"
+         (markerClick)="onMarkerClick(position)"  >
+         <agm-info-window #infowindow>
+          <strong>{{position.email}}</strong>
+        </agm-info-window>
+        
+        
+        </agm-marker>
+    </agm-map>           
+          
+ </span>
 
-      <agm-map [latitude]="latme" [longitude]="lngme" class="MyAgm"   #AgmMap>
-        <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng"
-          (markerClick)="onMarkerClick(position)"></agm-marker>
-      </agm-map>
+      
 
 
- <span *ngIf="isAdmin"> 
+ <span *ngIf="isAdmin && !isDriver"> 
   <ion-card  *ngFor="let item of Users">
     <span *ngIf="!item.isEdit; else elseBlock">
       <ion-card-header>
@@ -175,6 +168,14 @@
       </ion-card-content>
     </ng-template>
   </ion-card>
-</span>
+
+  <ion-button expand="block" fill="clear" routerLink="/register">
+    Create a new account
+  </ion-button>
+
+ </span>
+
+
+
 
 </ion-content>

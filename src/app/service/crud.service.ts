@@ -14,13 +14,15 @@ export class CrudService {
     return this.firestore.collection('userProfile').add(record);
   }
   read_Users() {
-    return this.firestore.collection('userProfile').snapshotChanges();
+    return this.firestore.collection('userProfile', x => x.where('isAdmin','==',false)).snapshotChanges();
   }
 
   read_Drivers() {
     return this.firestore.collection('userProfile', x => x.where('isDriver','==',true)).snapshotChanges();
         
   }
+
+ 
 
 
   create_NewMessage(record) {
