@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './service/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'welcome', pathMatch: 'full' },
   { path: 'home/news', redirectTo: 'news', pathMatch: 'full' },
   { path: 'home/home', redirectTo: 'home', pathMatch: 'full' },
   { path: 'news/home', redirectTo: 'home', pathMatch: 'full' },
@@ -17,6 +17,8 @@ const routes: Routes = [
   { path: 'register', loadChildren: './register/register.module#RegisterPageModule' },
   { path: 'news', loadChildren: './news/news.module#NewsPageModule' },
   { path: 'tabs', loadChildren: './tabs/tabs.module#TabsPageModule' },
+  { path: 'welcome', loadChildren: './welcome/welcome.module#WelcomePageModule' },
+
 ];
 
 @NgModule({

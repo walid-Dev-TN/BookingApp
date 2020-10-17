@@ -29,6 +29,10 @@ import { stringify } from 'querystring';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
+
+
+
+
 export class HomePage implements OnDestroy, OnInit {
 
   public Users: any;
@@ -37,6 +41,7 @@ export class HomePage implements OnDestroy, OnInit {
   public SelectedDriver: boolean = false;
   public SelectedUserId: any;
   public SelectedUserTel: any;
+  public SelectedUserDateDepart: any;
   public NbrReservations: any;
   public DateVoyage;
   public Destination: string;
@@ -101,6 +106,7 @@ export class HomePage implements OnDestroy, OnInit {
           driver = "Client";
        
         return {
+          NomPrenom: e.payload.doc.data()['NomPrenom'], 
           email: e.payload.doc.data()['email'],
           address: e.payload.doc.data()['Address'],
           lat: e.payload.doc.data()['lat'],
@@ -118,7 +124,8 @@ this.crudService.read_Drivers().subscribe(data => {
 
   this.Drivers = data.map(e => {
   return {
-          
+    NomPrenom: e.payload.doc.data()['NomPrenom'], 
+    Date_Depart: e.payload.doc.data()['Date_Depart'],      
     address: e.payload.doc.data()['Address'],
     email: e.payload.doc.data()['email'],
     lat: e.payload.doc.data()['lat'],
@@ -155,7 +162,7 @@ this.crudService.read_Drivers().subscribe(data => {
 
             this.isDriver = userProfileSnapshot.data().isDriver;
 
-            this.Direction = userProfileSnapshot.data().Dir;
+           // this.Direction = userProfileSnapshot.data().Dir;
             
           }).then(() => {
             if(this.isAdmin)
@@ -299,8 +306,10 @@ firebase
   //this.NbrReservations = userProfileSnapshot.data().NbrReservations;
   //this.NbrReservations = 1;
   this.SelectedDriver = userProfileSnapshot.data().isDriver;
-  this.SelectedUser = userProfileSnapshot.data().email;
+  this.SelectedUser = userProfileSnapshot.data().NomPrenom;
   this.SelectedUserTel = userProfileSnapshot.data().Tel;
+  this.SelectedUserDateDepart = userProfileSnapshot.data().Date_Depart;
+
 
 
 }).then(async  () => {
@@ -314,7 +323,7 @@ firebase
   const toast = await this.toastController.create({
   //message: this.address,
 
- message: driver + ': ' +  this.SelectedUser + '.<br/>Tél:' + this.SelectedUserTel + '<br/> Nombre de places réservés: ' + this.NbrReservations,
+ message: driver + ': ' +  this.SelectedUser + '.<br/>Tél:' + this.SelectedUserTel + '<br/> Nombre de places réservés: ' + this.NbrReservations + '<br/>Partira le:' + this.SelectedUserDateDepart,
  //message: driver +  this.SelectedUser  + 'places réservés',
 
   duration: 8000,
@@ -523,7 +532,7 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
       snap.forEach(doc => {
       this.latme = doc.data()['lat'];
       this.lngme = doc.data()['lng'];
-    //  this.Drivers.push(doc.data()); !!!!!!!!!!!!!
+    
   
      
       });

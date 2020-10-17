@@ -23,19 +23,7 @@
 
    
     
-        <ion-tabs>
-          <ion-tab-bar slot="fixed">
-            <ion-tab-button tab="home">
-              <ion-icon name="speedometer"></ion-icon>
-              <ion-label>Dashboard</ion-label>
-            </ion-tab-button>
-      
-            <ion-tab-button tab="news">
-              <ion-icon name="list"></ion-icon>
-              <ion-label>News</ion-label>
-            </ion-tab-button>
-          </ion-tab-bar>
-        </ion-tabs>
+        
     
 
 <span *ngIf="isDriver && !isAdmin" vertical="top">
@@ -81,29 +69,40 @@
 
 <span *ngIf="!isDriver && !isAdmin" vertical="top">
     
-           <ion-item>
-                <ion-select [(ngModel)]="Direction" (ionChange)="DirChange()">
+                <ion-label color="mango">Votre direction</ion-label>
+                <ion-select interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()">
                   <ion-select-option value="KT">Tunis</ion-select-option>
                   <ion-select-option value="TK">Kébili</ion-select-option>
                 </ion-select>
-           </ion-item>
-           <ion-item>
-                <ion-select [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
+                
+                <ion-label color="mango">Choisir entre les dates disponibles</ion-label>
+                <ion-select interface="popover" [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
                   <ion-select-option *ngFor="let date_voyage of DatesVoyages" [value]="date_voyage.email">
-                    {{date_voyage.Date_depart}}:{{date_voyage.email}}
+                    <span style="font-size: 12px">  {{date_voyage.Date_Depart}}</span>
                   </ion-select-option>
                 </ion-select>
-           </ion-item>
+         
                  
-    <agm-map [zoom]="18" [latitude]="latme" [longitude]="lngme" class="MyAgm"   #AgmMap [mapTypeId]="'hybrid'">
+    <agm-map [zoom]="18" [latitude]="latme" [longitude]="lngme"  #AgmMap [mapTypeId]="'hybrid'">
       <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng" [label]="position.Dir"
          (markerClick)="onMarkerClick(position)"  >
-         <agm-info-window #infowindow>
-          <strong>{{position.email}}</strong>
+         <agm-info-window #infowindow [isOpen]="position.lat == latme">
+          <div>
+            <h4>{{ position.NomPrenom }}</h4>
+          </div>
+          <div class="agm-info-content">
+            <div class="content-row">
+              <div>EMAIL:</div> {{position.email}}
+            </div>
+            <div class="content-row">
+              <div>TEL</div>: {{ position.Tel }}
+            </div>
+            <div class="content-row">
+              Veuillez cliquer sue le Marker rouge pour réserver une place
+            </div>
+          </div>
         </agm-info-window>
-        
-        
-        </agm-marker>
+      </agm-marker>
     </agm-map>           
           
  </span>
@@ -174,7 +173,6 @@
   </ion-button>
 
  </span>
-
 
 
 

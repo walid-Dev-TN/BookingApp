@@ -74,33 +74,56 @@
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  /**mango**/
+  --ion-color-mango: #ffcc66;
+--ion-color-mango-rgb: 255,204,102;
+--ion-color-mango-contrast: #000000;
+--ion-color-mango-contrast-rgb: 0,0,0;
+--ion-color-mango-shade: #e0b45a;
+--ion-color-mango-tint: #ffd175;
+
+
 }
 
 agm-map {
-  height: 90vh !important;
+  height: 100% !important;
   width: 100%;  /* This is really important*/
 }
 
-ion-fab {
-  height: 90vh !important;
-  width: 100%;  /* This is really important*/
-}
 
 ion-header{
   height: 10vh !important;
   width: 100%;  /* This is really important*/
 } 
 
-ion-select{
-  width: 100%; 
+ion-tabs{
+  height: 10vh !important;
+  width: 100%;
+  vertical-align: bottom;
 }
 
-ion-datetime{
-  width: 100%; 
+span{
+  height: 80vh !important;
+  width: 100%;  /* This is really important*/
 }
-ion-item{
-  width: 100%; 
-}
+
+ion-tab-button.tab-selected {
+  ion-icon, ion-label {
+  color: var(--ion-color-mango) !important;
+  --ion-color-base: var(--ion-color-mango) !important;
+  }
+  }
+  
+  
+  .ion-color-mango {
+  --ion-color-base: var(--ion-color-mango);
+  --ion-color-base-rgb: var(--ion-color-mango-rgb);
+  --ion-color-contrast: var(--ion-color-mango-contrast);
+  --ion-color-contrast-rgb: var(--ion-color-mango-contrast-rgb);
+  --ion-color-shade: var(--ion-color-mango-shade);
+  --ion-color-tint: var(--ion-color-mango-tint);
+  }
 
 $colors: (
     primary:    #387ef5,
