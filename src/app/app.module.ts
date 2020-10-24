@@ -17,7 +17,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 
 import { ServiceWorkerModule } from '@angular/service-worker';
-
+import { MyModalPageModule } from './modals/my-modal/my-modal.module';
 
 
 @NgModule({
@@ -30,6 +30,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     AngularFirestoreModule,
     AngularFireDatabaseModule,
     AngularFireAuthModule,
+    MyModalPageModule,
     ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })
     
   ],

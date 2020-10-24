@@ -1,11 +1,25 @@
 
-<ion-content>
-  <div style="text-align: center; color: #ffcc66;"><h1>BLASSA</h1></div>
-  <div style="text-align: right;">
-  <img src="../assets/images/Blassa.png" />
-</div>
-  <div class="content-row">
-    Application de réservation en ligne
-  </div>
-  <ion-button expand="block" share="round" color="mango" (click)="navigateToLogin()">Start</ion-button>
+<ion-content class="mycontent">
+  
+
+  <ion-grid style="width: 100%; height: 100%;">
+    <ion-row justify-content-center align-items-center style='height: 100%'>
+    <ion-col col-1></ion-col>
+    <ion-col col-10> <img src="../assets/images/imageonline.jpg"/> </ion-col>    
+    <ion-col col-1></ion-col>
+    </ion-row>
+    </ion-grid>
+
+
+  
 </ion-content>
+
+<ion-footer>
+  <ion-grid>
+     
+      <ion-row>
+        <ion-col col-12><ion-button expand="block" share="round" color="mango" (click)="navigateToLogin()">Start</ion-button></ion-col>
+        
+      </ion-row>
+  </ion-grid>
+</ion-footer>

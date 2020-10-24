@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>Reservation actuelle</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-grid>   
+    <ion-row>
+      <ion-col text-center>
+        Title : {{modalTitle}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        ID du voyage : {{modalId}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        Date prévue du voyage : {{modalDate}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        Le chauffeur : {{chauffeur}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col text-center>
+          
+          cette réservation est {{confirme}}
+        </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        <ion-button (click)="closeModal()">Continuer</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

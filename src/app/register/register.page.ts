@@ -18,6 +18,7 @@ export class RegisterPage implements OnInit {
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private formBuilder: FormBuilder,
+    public alertController: AlertController,
     private router: Router) {
       this.signupForm = this.formBuilder.group({
         email: [
@@ -45,10 +46,11 @@ export class RegisterPage implements OnInit {
       const password: string = signupForm.value.password;
       
   
-      this.authService.signupUser(email, password).then(
+      this.authService.signupUser(email, password, true).then(
         () => {
           this.loading.dismiss().then(() => {
-            this.router.navigateByUrl('home');
+          //  this.router.navigateByUrl('home');
+          this.presentAlert("Demande d'inscription envoyée avec succès! <br/> Veuillez attendre la validation de l'administrateur de la plateforme");
           });
         },
         error => {
@@ -64,6 +66,18 @@ export class RegisterPage implements OnInit {
       this.loading = await this.loadingCtrl.create();
       await this.loading.present();
     }
+  }
+
+  async presentAlert(MessageText) {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Alert',
+      subHeader: '',
+      message: MessageText,
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 
 }

@@ -11,7 +11,7 @@ export class AuthService {
 
   constructor() { }
 
-  signupUser(email: string, password: string): Promise<any> {
+  signupUser(email: string, password: string, pending: boolean): Promise<any> {
     return firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
@@ -20,6 +20,11 @@ export class AuthService {
           .firestore()
           .doc(`/userProfile/${newUserCredential.user.uid}`)
           .set({ email });
+
+          firebase
+          .firestore()
+          .doc(`/userProfile/${newUserCredential.user.uid}`)
+          .set({ pending });
       })
       .catch(error => {
         console.error(error);

@@ -18,6 +18,8 @@ const routes: Routes = [
   { path: 'news', loadChildren: './news/news.module#NewsPageModule' },
   { path: 'tabs', loadChildren: './tabs/tabs.module#TabsPageModule' },
   { path: 'welcome', loadChildren: './welcome/welcome.module#WelcomePageModule' },
+  { path: 'my-modal', loadChildren: './modals/my-modal/my-modal.module#MyModalPageModule' }
+
 
 ];
 

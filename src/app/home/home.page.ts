@@ -21,6 +21,10 @@ import { ToastController } from "@ionic/angular";
 import { AngularFirestore } from '@angular/fire/firestore';
 import { stringify } from 'querystring';
 
+import { ModalController } from '@ionic/angular';
+import { MyModalPage } from '../modals/my-modal/my-modal.page';
+import { Title } from '@angular/platform-browser';
+
 //import { HttpClient, HttpHeaders} from '@angular/common/http';
 
 
@@ -38,15 +42,21 @@ export class HomePage implements OnDestroy, OnInit {
   public Users: any;
   public Drivers: any;
   public SelectedUser: any;
+  public selectedUsermail: any;
   public SelectedDriver: boolean = false;
   public SelectedUserId: any;
   public SelectedUserTel: any;
   public SelectedUserDateDepart: any;
+  public VoyageEnCours: any;
+  public VoyagesEncoreValides: any;
+
+  public DateVoyageEnCours: any;
   public NbrReservations: any;
+  public NbrReservationsClient: any;
   public DateVoyage;
   public Destination: string;
   public current;
-  public existe: number = -1;
+  public existe: number = 0;
   public Mysnapshot: any;
   public selected_value0;
   UserName: string;
@@ -75,6 +85,7 @@ export class HomePage implements OnDestroy, OnInit {
   public isAdmin: boolean = false;
   public isDriver: boolean = false;
   public email: string;
+  public NomPrenom: string;
   public isClient = false;
   public Reservations: any;
   public ResNbr: number;
@@ -83,16 +94,24 @@ export class HomePage implements OnDestroy, OnInit {
   public NbrVoyages: number;
   public user: string;
   public userId: string;
+  public pended: boolean;
   public Mytoken: any;
   private geoCoder;
+  dataReturned: any;
+
 
   constructor( private firestore: AngularFirestore, private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router,
     private http: HttpClient,
-    public toastController: ToastController
+    public toastController: ToastController,
+    public modalController: ModalController,
+    public alertController: AlertController
+
     ) {}
 
 
-  ngOnInit() {
+   ngOnInit() {
+
+  
       this.crudService.read_Users().subscribe(data => {
      
       this.Users = data.map(e => {
@@ -155,22 +174,59 @@ this.crudService.read_Drivers().subscribe(data => {
           .then(  userProfileSnapshot => {
 
             console.log(user.uid);
+            
            if (userProfileSnapshot.data().email)
             this.user = userProfileSnapshot.data().email;
             this.userId = user.uid;
+            this.pended = userProfileSnapshot.data().pending;
             this.isAdmin = userProfileSnapshot.data().isAdmin;
 
             this.isDriver = userProfileSnapshot.data().isDriver;
-
+            this.NomPrenom = userProfileSnapshot.data().NomPrenom; 
+            this.VoyageEnCours = userProfileSnapshot.data().Id_Voyage;
+            this.DateVoyageEnCours = userProfileSnapshot.data().Date_Depart;
            // this.Direction = userProfileSnapshot.data().Dir;
             
           }).then(() => {
+
+            if(this.pended){
+              this.presentAlert2("Pas encore validé!!")
+              this.Logout();
+              this.router.navigateByUrl("login");
+            }
+
+
+
             if(this.isAdmin)
             console.log("Admin");
             else
             {
-                
-        /*****************Tentatives précedentes******************* */
+              if(this.isDriver)
+              {  
+        /*****************Liste des réservations******************* */
+
+        this.Reservations = [];
+        var query = firebase.firestore().collection("ReservationsList").where('Driver','==', this.user);
+        //var query2 = query.where('Dir','==', this.Direction);
+        //var query3 = query2.where('isDriver','==', true);
+      
+        query.get().then(snap => {
+         // this.ResNbr =  snap.size;
+          snap.forEach(doc => {
+          if(doc.data()['Id_Voyage'] == this.VoyageEnCours)
+            this.Reservations.push(doc.data());
+         
+          });
+          this.ResNbr = this.Reservations.length;
+
+      //    if(this.ResNbr > 0)
+      //    this.openModal(this.Reservations);
+
+
+        });
+        console.log("Chauffeur");
+       }
+/*********************old code remplassé par celui au dessus le 19/10/2020********************************
 this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.user)).snapshotChanges().subscribe(  data => {
   this.ResNbr =  data.length;
 
@@ -186,18 +242,110 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
 
   console.log("Nbre de reservations reçus: " + this.ResNbr);
 });
-/***********************************************************/
+***********************************************************/
+          else{
 
-            console.log("Utilisateur normal");
+/*************************Réservations en cours************************************* */
 
-            }
+this.VoyagesEncoreValides = [];
+var query = firebase.firestore().collection("userProfile").where('isDriver','==', true);
+
+ query.get().then(snap => {
+  
+  snap.forEach(doc => {
+    this.VoyagesEncoreValides.push(doc.data()['Id_Voyage']);
+  });
+  console.log("Voyages encore valides" + snap.size);
+  //console.log("Voyages encore valides" + this.VoyagesEncoreValides.length);
+
+this.Reservations = [];
+        var query = firebase.firestore().collection("ReservationsList").where('Client','==', this.user);
+        //var query2 = query.where('Dir','==', this.Direction);
+        //var query3 = query2.where('isDriver','==', true);
+      
+        query.get().then(snap => {
+         // this.ResNbr =  snap.size;
+          snap.forEach(doc => {
+          if(this.VoyagesEncoreValides.includes(doc.data()['Id_Voyage']))
+            this.Reservations.push(doc.data());
+         
+          });
+          this.ResNbr = this.Reservations.length;
+          console.log("ResNbr" + this.ResNbr);
+
+
+          if(this.ResNbr > 0)
+          this.openModal(this.Reservations, 1);
+          console.log(this.Reservations);
+        });
+ });      
+/************************************************************************************ */       
+
+            console.log("Passager");
+          }
+      }
           });
       }
     });
+    
 
-  }
+}
  
-  // Function to get the current geo position of the device
+
+async openModal(Reservations, option: number) {
+  
+    try {
+      var reservations = Reservations;
+      var Date_Depart;
+      var Titlem = "";
+        if(option == 1)
+        Titlem="Vous avez déja réservé une place dont voici les détails!";
+        else
+        Titlem="Votre réservation dont voici les détails, est envoyée avec succès";
+      var query = await firebase.firestore().collection("VoyagesList").doc(reservations[0].Id_Voyage).get().then(snap => {
+        
+ 
+    Date_Depart = snap.data()['Date_voyage'];
+  
+ });
+
+
+
+      console.table(reservations);
+          const modal = await this.modalController.create({
+      component: MyModalPage,
+      componentProps: {
+        "paramID": reservations[0].Id_Voyage,
+        "paramDate": Date_Depart,
+        "paramChauffeur": reservations[0].Driver,
+        "paramConfirme": reservations[0].Confirme,
+        
+        "paramTitle": Titlem
+
+      }
+      
+
+      
+    });
+ 
+    modal.onDidDismiss().then((dataReturned) => {
+      if (dataReturned !== null) {
+        this.dataReturned = dataReturned.data;
+        //alert('Modal Sent Data :'+ dataReturned);
+      }
+    });
+    console.log("modal affichée");
+    return await modal.present();
+  }
+  catch(e) { 
+    console.log(e);
+   }
+}
+
+
+
+
+  
 
    async getCurrentLocation(userId: string) {
     var lat0: number;
@@ -268,24 +416,41 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
 
 
   onMarkerClick(event) {
+    if( this.ResNbr == 0)
     this.presentToast(event);
+    else
+     this.presentAlert("Vous avez déja réservé une place!");
+  }
+
+   async presentAlert(MessageText) {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Alert',
+      subHeader: 'Pour rappel',
+      message: MessageText,
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 
   
+  async presentAlert2(MessageText) {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Alert',
+      subHeader: '',
+      message: MessageText,
+      //buttons: ['OK']
+    });
+
+    await alert.present();
+  }
     // function to display the toast with location and dismiss button
 
     async presentToast(event) {
     
-      await this.firestore.collection('ReservationsList', x => x.where('Driver','==', event.email)).snapshotChanges().subscribe(data => {
-        if(data.length > 0)
-        {
-          this.NbrReservations = data.length;
-          console.log("------------------------" + this.NbrReservations);
-        }  
-        else
-        this.NbrReservations = 0;
       
-      });
       
       let latlgn = event.lat.toString() + event.lng.toString() + event.email.toString();
       var db = firebase.firestore();
@@ -307,23 +472,53 @@ firebase
   //this.NbrReservations = 1;
   this.SelectedDriver = userProfileSnapshot.data().isDriver;
   this.SelectedUser = userProfileSnapshot.data().NomPrenom;
+  this.selectedUsermail = userProfileSnapshot.data().email;
   this.SelectedUserTel = userProfileSnapshot.data().Tel;
   this.SelectedUserDateDepart = userProfileSnapshot.data().Date_Depart;
-
+  this.VoyageEnCours = userProfileSnapshot.data().Id_Voyage;
 
 
 }).then(async  () => {
+    
 
+
+  /********************Nbr reservations******************************* */
+
+ var db = firebase.firestore();
+await db.collection("ReservationsList").where('Driver','==', event.email).where('Id_Voyage','==', this.VoyageEnCours).get()
+.then( querySnapshot => {
+  this.NbrReservations = querySnapshot.size;
+ 
+
+});
+
+/*************** old code modifié le 19/10/2020 par celui au desssus
+  await this.firestore.collection('ReservationsList', x => x.where('Driver','==', event.email)).snapshotChanges().subscribe(data => {
+    if(data.length > 0)
+    {
+      this.NbrReservations = data.length;
+      console.log("------------------------" + this.NbrReservations);
+    }  
+    else
+    this.NbrReservations = 0;
   
+  });
+  ****************************/
+  /*************************************************** */
   var driver: any;
   if(this.SelectedDriver)
   driver = 'le chauffeur';
   else
   driver = '';
+  var mess ='';
+  if(this.NbrReservations < 8)
+    mess = driver + ': ' +  this.SelectedUser + '.<br/>Tél:' + this.SelectedUserTel + '<br/> Nombre de places réservés: ' + this.NbrReservations + '<br/>Partira le:' + this.SelectedUserDateDepart;
+  else
+    mess= 'Toutes les places du ' + driver + ': ' +  this.SelectedUser + ' sont réservées';
   const toast = await this.toastController.create({
   //message: this.address,
 
- message: driver + ': ' +  this.SelectedUser + '.<br/>Tél:' + this.SelectedUserTel + '<br/> Nombre de places réservés: ' + this.NbrReservations + '<br/>Partira le:' + this.SelectedUserDateDepart,
+  message: mess,
  //message: driver +  this.SelectedUser  + 'places réservés',
 
   duration: 8000,
@@ -335,7 +530,7 @@ firebase
       //icon: "close-circle",
      // role: "cancel",
      side: 'start',
-     text: 'RESERVER',
+     text: 'Réserver une place',
       handler: () => {
         this.onToastClick(event.email, event.Tel, event.lat.toString(), event.lng.toString()).then(()=>{
            
@@ -396,10 +591,20 @@ toast.present();
 
 
       var db = firebase.firestore();
-      db.collection("userProfile").where("email","==", this.SelectedUser).get()
+      db.collection("userProfile").where("email","==", this.selectedUsermail).get()
       .then( async querySnapshot => {
 
 /*****************Tentatives précedentes******************* */
+var db = firebase.firestore();
+await db.collection("ReservationsList").where('Client','==', this.user).where('Id_Voyage','==', this.VoyageEnCours).get()
+.then( querySnapshot => {
+  this.existe = querySnapshot.size;
+  console.log('Tentatives précedentes pour le voyage en cours:' + this.existe);
+ 
+
+});
+
+/******************old code remplacé par celui au dessus le 19/10/2020
 await this.firestore.collection('ReservationsList', x => x.where('Client','==',this.user)).snapshotChanges().subscribe(  data => {
   this.existe =  data.length ;
   console.log('Tentatives précedentes:' + this.existe);
@@ -424,16 +629,57 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
         {
         let record = {};
         record['Client'] = this.user;
+        record['NomPrenom'] = this.NomPrenom;
         record['Tel'] = userProfileSnapshot.data().Tel;
-        record['Driver']= this.SelectedUser;
+        record['Driver']= this.selectedUsermail;
+        record['Id_Voyage']= this.VoyageEnCours;
+        record['Confirme']=false;
        // record['NbrReservations'] = this.NbrReservations + 1;
       this.firestore.collection('ReservationsList').add(record).then( resp => {
-        
-      //  db.collection("userProfile").doc(`${doc.id}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
+        var db = firebase.firestore();
+           db.collection("userProfile").doc(`${this.SelectedUserId}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
         //this.address = this.address;
-        console.log(resp);
-        console.log("Reservation faite avec succès!");
-      //});
+             // console.log(resp);
+            // console.log("Reservation faite avec succès!");
+            /*************************Réservations en cours************************************* */
+
+this.VoyagesEncoreValides = [];
+var query = firebase.firestore().collection("userProfile").where('isDriver','==', true);
+
+ query.get().then(snap => {
+  
+  snap.forEach(doc => {
+    this.VoyagesEncoreValides.push(doc.data()['Id_Voyage']);
+  });
+  console.log("Voyages encore valides" + snap.size);
+  //console.log("Voyages encore valides" + this.VoyagesEncoreValides.length);
+
+this.Reservations = [];
+        var query = firebase.firestore().collection("ReservationsList").where('Client','==', this.user);
+        //var query2 = query.where('Dir','==', this.Direction);
+        //var query3 = query2.where('isDriver','==', true);
+      
+        query.get().then(snap => {
+         // this.ResNbr =  snap.size;
+          snap.forEach(doc => {
+          if(this.VoyagesEncoreValides.includes(doc.data()['Id_Voyage']))
+            this.Reservations.push(doc.data());
+         
+          });
+          this.ResNbr = this.Reservations.length;
+          console.log("ResNbr" + this.ResNbr);
+
+
+          if(this.ResNbr > 0)
+          this.openModal(this.Reservations, 2);
+       //   console.log(this.Reservations);
+        });
+ });      
+/************************************************************************************ */       
+
+
+
+           });
       })
         .catch(error => {
           console.log(error);
@@ -520,7 +766,9 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
       });
       /*********************************** */
   }
+  ConfirmeRes(email : string){}
 
+  RemoveRes(email : string){}
 /*************************************************** */
   latlngChange(email: string){
     var query = firebase.firestore().collection("userProfile").where('email','==', email).where('isDriver','==', true);
@@ -593,35 +841,52 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
     
 } 
 
-  dateChanged()
+   dateChanged()
   {
+    if(this.ResNbr > 0){
+    let message = "Réservations déja faites pour le voyage en cours";
+    this.presentAlert(message);
+    }
+    else
+    {
     let record = {};
     record['Date_voyage'] = this.DateVoyage;
     record['Driver'] = this.user;
     record['confirme']= true;
     record['destination']= this.Destination;
+    var id_voyage : any;
+    /********************Ajout du nouveau voyage à la collection VoyagesList ********************************** */
+ this.firestore.collection('VoyagesList').add(record).then( resp =>  {
+      
+  id_voyage = resp.id;
 
-    this.firestore.collection('VoyagesList').add(record).then( resp => {
-        
-      //  db.collection("userProfile").doc(`${doc.id}`).update("NbrReservations",userProfileSnapshot.data().NbrReservations + 1 ).then(() => {
-        //this.address = this.address;
-       
-
-
-        console.log(resp);
-        console.log("Date du voyage ajouté faite avec succès!");
-      //});
-      })
-        .catch(error => {
-          console.log(error);
-        });
-
+  console.log(resp.id);
+  console.log("Date du voyage ajouté avec succès!");
+     /*******************Update du Id_Voyage du driver**************************************** */
         var db = firebase.firestore();
         
-        db.collection("userProfile").doc(this.userId).update("Dir", this.Destination ).then( resp => {
+        db.collection("userProfile").doc(this.userId).update("Id_Voyage", id_voyage ).then( resp => {
         
-            
-    
+          console.log(resp);
+          console.log("id_voyage en cours changée avec succès!");
+
+        })
+          .catch(error => {
+            console.log(error);
+          });
+/**************************Remise à zéro du NbrReservations du driver*********************************** */
+          db.collection("userProfile").doc(this.userId).update("NbrReservations", 0 ).then( resp => {
+        
+            console.log(resp);
+            console.log("id_voyage en cours changée avec succès!");
+  
+          })
+            .catch(error => {
+              console.log(error);
+            });
+/****************************Update de la destination********************************** */
+        db.collection("userProfile").doc(this.userId).update("Dir", this.Destination ).then( resp => {
+          
             console.log(resp);
             console.log("Dir changée avec succès!");
   
@@ -629,11 +894,10 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
             .catch(error => {
               console.log(error);
             });
-
+/************************************************************** */
             db.collection("userProfile").doc(this.userId).update("Date_Depart", this.DateVoyage ).then( resp => {
         
             
-    
               console.log(resp);
               console.log("Date de départ changée avec succès!");
     
@@ -641,7 +905,12 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
               .catch(error => {
                 console.log(error);
               });
- 
+
+   })
+     .catch(error => {
+     console.log(error);
+    });
+      }
   }
 
   ngOnDestroy() {

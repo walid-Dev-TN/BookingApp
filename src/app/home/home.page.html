@@ -14,7 +14,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <span style="font-size: 14px">Welcome {{email}} >> Dashboard</span>
+  <span style="font-size: smaller">Bienvenue {{NomPrenom}}</span>
 </ion-header>
 
 
@@ -28,54 +28,60 @@
 
 <span *ngIf="isDriver && !isAdmin" vertical="top">
   
-
+      <ion-item>
+        <ion-textarea style="font-size: small;">Le prochain voyage numéro: {{VoyageEnCours}} <br/> Prévu le: <br/>{{DateVoyageEnCours}} </ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-textarea  style="font-size: small;">Jusqu'au maintenant vous avez:<br/> {{ResNbr}} réservations </ion-textarea>
+      </ion-item>
+      
+               <ion-item >
+            
+                <ion-card *ngFor="let resv of Reservations; let i = index" style="width: fit-content;">
+                     <ion-card-header>
+                       <ion-card-title style="font-size: small;">Reservation n°{{i+1}}</ion-card-title>
+                       <ion-card-subtitle> Au nom de:{{resv.NomPrenom}} Tel:{{resv.Tel}} </ion-card-subtitle>
+                     </ion-card-header>
+                     <ion-card-content>
+                         <ion-button shape="round" color="secondary" size="small" (click)="ConfirmeRes(resv.Client)">
+                           <ion-icon size="small" slot="icon-only" name="checkmark"></ion-icon>
+                         </ion-button>
+                         <ion-button shape="round" color="danger" size="small" (click)="RemoveRes(resv.Client)">
+                           <ion-icon size="small" slot="icon-only" name="trash"></ion-icon>
+                         </ion-button>
+                     </ion-card-content>
+                </ion-card> 
+            </ion-item>
+          
+    
+              <ion-item>
+                <ion-label>Définir un nouveau voyage:</ion-label>
+              </ion-item>
               <ion-item>
                 
-                <ion-select placeholder="Choisir votre destination" [(ngModel)]="Destination">
+                <ion-label style="font-size: small;" color="mango">Votre direction</ion-label>
+                <ion-select style="font-size: small;" interface="popover" [(ngModel)]="Destination">
                   <ion-select-option value="KT">Tunis</ion-select-option>
                   <ion-select-option value="TK">Kébili</ion-select-option>
                 </ion-select>
-            
+
                    
-                  <ion-datetime placeholder="Date du voyage" (ionChange)="dateChanged()" [(ngModel)]="DateVoyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+                  <ion-datetime style="font-size: small;" placeholder="Date du voyage" (ionChange)="dateChanged()" [(ngModel)]="DateVoyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
                       </ion-datetime>
                   </ion-item>
               
-           
-                <ion-item>
-            <ion-label>{{ResNbr}} réservations </ion-label>
-            </ion-item>
-         <ion-grid>
-        <ion-row *ngFor="let resv of Reservations">
-            <ion-col>
-                <ion-item>
-                    
-                    <ion-card >
-                        <ion-card-header>
-                          <ion-card-title></ion-card-title>
-                         
-                        </ion-card-header>
-                        <ion-card-content>
-                         Tel:{{resv.ResTel}} Au nom de:{{resv.ResUserName}}
-                        </ion-card-content>
-                    </ion-card> 
-                </ion-item>
-            </ion-col>
-        </ion-row>
-
-    </ion-grid>
-
+          
   </span>
 
 <span *ngIf="!isDriver && !isAdmin" vertical="top">
     
-                <ion-label color="mango">Votre direction</ion-label>
+                <ion-label style="font-size: small;" color="mango">Votre direction</ion-label>
                 <ion-select interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()">
                   <ion-select-option value="KT">Tunis</ion-select-option>
                   <ion-select-option value="TK">Kébili</ion-select-option>
                 </ion-select>
                 
-                <ion-label color="mango">Choisir entre les dates disponibles</ion-label>
+                <ion-label style="font-size: small;" color="mango">Choisir entre les dates disponibles</ion-label>
                 <ion-select interface="popover" [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
                   <ion-select-option *ngFor="let date_voyage of DatesVoyages" [value]="date_voyage.email">
                     <span style="font-size: 12px">  {{date_voyage.Date_Depart}}</span>
@@ -83,7 +89,7 @@
                 </ion-select>
          
                  
-    <agm-map [zoom]="18" [latitude]="latme" [longitude]="lngme"  #AgmMap [mapTypeId]="'hybrid'">
+    <agm-map [zoom]="6" [latitude]="latme" [longitude]="lngme"  #AgmMap [mapTypeId]="'hybrid'">
       <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng" [label]="position.Dir"
          (markerClick)="onMarkerClick(position)"  >
          <agm-info-window #infowindow [isOpen]="position.lat == latme">
