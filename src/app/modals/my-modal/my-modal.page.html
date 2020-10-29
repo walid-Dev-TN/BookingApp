@@ -6,10 +6,15 @@
 
 <ion-content class="ion-padding">
 
-  <ion-grid>   
+  <ion-grid>
     <ion-row>
       <ion-col text-center>
-        Title : {{modalTitle}}
+        {{modalClient}}
+      </ion-col>
+    </ion-row>   
+    <ion-row>
+      <ion-col text-center>
+        {{modalTitle}}
       </ion-col>
     </ion-row>
     <ion-row>
@@ -39,5 +44,14 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+
+
+  <div class="center" *ngIf="myAngularxQrCode">
+    <qrcode [qrdata]="myAngularxQrCode" [size]="250" [level]="'M'"></qrcode>
+  </div>
+
+  
+    
 
 </ion-content>

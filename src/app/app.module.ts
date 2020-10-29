@@ -18,7 +18,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { MyModalPageModule } from './modals/my-modal/my-modal.module';
-
+import { QRScanner} from '@ionic-native/qr-scanner/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,6 +38,8 @@ import { MyModalPageModule } from './modals/my-modal/my-modal.module';
   providers: [
     StatusBar,
     SplashScreen,
+    QRScanner,
+    AndroidPermissions,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

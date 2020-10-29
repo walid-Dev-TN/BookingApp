@@ -3,6 +3,10 @@ import {
 ModalController, 
 NavParams 
 } from '@ionic/angular';
+//import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
+//import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner/ngx';
+
+//declare let window: any;
 
 @Component({
   selector: 'app-my-modal',
@@ -10,29 +14,125 @@ NavParams
   styleUrls: ['./my-modal.page.scss'],
 })
 export class MyModalPage implements OnInit {
+ 
+ // domElement: any;
+  
+ public textToCode: string;
+ public myAngularxQrCode: string = null;
 
-
+  modalClient: string;
   modalTitle: string;
   modalId: string;
   modalDate: string;
   chauffeur: string;
   confirme: string;
+  type_user: number;
+  data: any;
+
   constructor(
     private modalController: ModalController,
-    private navParams: NavParams
-  ) { }
+    private navParams: NavParams,
+    //private barcodeScanner: BarcodeScanner
+    //private qrScanner: QRScanner
+  ) {}
 
   ngOnInit() {
     console.table(this.navParams);
+    this.modalClient = this.navParams.data.paramClient;
     this.modalId = this.navParams.data.paramID;
     this.modalDate = this.navParams.data.paramDate;
     this.modalTitle = this.navParams.data.paramTitle;
     this.chauffeur = this.navParams.data.paramChauffeur;
+    this.type_user = this.navParams.data.paramtype_user;
     if(this.navParams.data.paramConfirme)
     this.confirme = "confirmé";
     else
-    this.confirme = "pas encore confirmé";
+    this.confirme = "pas encore confirmé";  
+    if(this.type_user == 3){
+    this.textToCode="Nom et Prénom:" + this.modalClient + "/ID Voyage:" + this.modalId + "/Date:" + this.modalDate;
+    this.createQRCode();
+    }
+
+    //this.domElement = window.document.querySelector('ion-app') as HTMLElement;
+    //this.prepare();
   }
+
+  createQRCode() {
+    this.myAngularxQrCode = this.textToCode;
+    this.textToCode = "";
+  }
+
+/*********************************************************
+  scanBarcode() {
+    const options: BarcodeScannerOptions = {
+      preferFrontCamera: false,
+      showFlipCameraButton: true,
+      showTorchButton: true,
+      torchOn: false,
+      prompt: 'Place a barcode inside the scan area',
+      resultDisplayDuration: 500,
+      formats: 'EAN_13,EAN_8,QR_CODE,PDF_417 ',
+      orientation: 'portrait',
+      };
+
+    window.barcodeScanner.scan(options).then(barcodeData => {
+      console.log('Barcode data', barcodeData);
+      this.scannedData = barcodeData;
+
+    }).catch(err => {
+      console.log('Error', err);
+    });
+  }
+
+  createBarcode() {
+    this.barcodeScanner.encode(this.barcodeScanner.Encode.TEXT_TYPE, this.inputData).then((encodedData) => {
+      console.log(encodedData);
+      this.encodedData = encodedData;
+    }, (err) => {
+      console.log('Error occured : ' + err);
+    });
+  }
+***********************************************************************************/
+/**********************************************************************
+
+ionViewWillLeave() {
+  this.hideCamera();
+}
+
+prepare() {
+  this.qrScanner.prepare()
+    .then((status: QRScannerStatus) => {
+      console.log(status.authorized);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+// Run this function.
+showCamera() {
+  this.qrScanner.show();
+  this.domElement.classList.add('has-camera');
+
+  const scanSub = this.qrScanner.scan()
+    .subscribe((text: string) => {
+      scanSub.unsubscribe();
+      this.onScan(text);
+    });
+}
+
+hideCamera() {
+  this.qrScanner.hide();
+  this.domElement.classList.remove('has-camera');
+}
+
+onScan(text: string) {
+  this.hideCamera();
+  console.log('Scanned:', text);
+}
+
+
+*******************************************************************************/
 
   async closeModal() {
     const onClosedData: string = "Wrapped Up!";

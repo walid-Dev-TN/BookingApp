@@ -18,7 +18,18 @@ const routes: Routes = [
   { path: 'news', loadChildren: './news/news.module#NewsPageModule' },
   { path: 'tabs', loadChildren: './tabs/tabs.module#TabsPageModule' },
   { path: 'welcome', loadChildren: './welcome/welcome.module#WelcomePageModule' },
-  { path: 'my-modal', loadChildren: './modals/my-modal/my-modal.module#MyModalPageModule' }
+  { 
+     path: 'my-modal', 
+     loadChildren: () => import('./modals/my-modal/my-modal.module').then(m =>m.MyModalPageModule),
+     canActivate: [AuthGuard],
+  },
+  { path: 'qrcode-scanner', loadChildren: './qrcode-scanner/qrcode-scanner.module#QrcodeScannerPageModule' },
+  { 
+     path: 'qrscanner',
+     loadChildren: () => import('./qrscanner/qrscanner.module').then(m => m.QrscannerPageModule),
+     canActivate: [AuthGuard],    
+  }
+
 
 
 ];

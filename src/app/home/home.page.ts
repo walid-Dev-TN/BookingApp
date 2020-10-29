@@ -245,7 +245,7 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
 ***********************************************************/
           else{
 
-/*************************Réservations en cours************************************* */
+/*************************Afficher Modal en cas de réservations en cours************************************* */
 
 this.VoyagesEncoreValides = [];
 var query = firebase.firestore().collection("userProfile").where('isDriver','==', true);
@@ -277,6 +277,46 @@ this.Reservations = [];
           if(this.ResNbr > 0)
           this.openModal(this.Reservations, 1);
           console.log(this.Reservations);
+/**********!!!!!!!!******************Update de la destination******************!!!!!!!!**************** */
+var Id_Voyage = this.Reservations[0].Id_Voyage;
+console.log("Id_Voyage=", Id_Voyage);
+//var query = firebase.firestore();
+firebase
+          .firestore()
+          .doc(`/VoyagesList/${Id_Voyage}`)
+          .get()
+          .then(resp => {
+// this.ResNbr =  snap.size;
+this.Direction = resp.data().destination;
+this.selected_value0 = resp.data().Date_voyage;
+
+
+var db = firebase.firestore();
+db.collection("userProfile").doc(this.userId).update("Dir", this.Direction );
+
+});
+var latme: number;
+var lngme: number;
+var query = firebase.firestore().collection("userProfile").where('isDriver','==', true).where('Id_Voyage','==', Id_Voyage);
+        //var query2 = query.where('Dir','==', this.Direction);
+        //var query3 = query2.where('isDriver','==', true);
+      
+        query.get().then(snap => {
+         // this.ResNbr =  snap.size;
+          snap.forEach(doc => {
+          latme = doc.data()['lat'];
+          lngme = doc.data()['lng'];
+          });
+          this.latme = latme;
+          this.lngme = lngme;
+        });
+      
+        
+/**************************************************************************************** */
+
+
+
+
         });
  });      
 /************************************************************************************ */       
@@ -298,10 +338,23 @@ async openModal(Reservations, option: number) {
       var reservations = Reservations;
       var Date_Depart;
       var Titlem = "";
-        if(option == 1)
+      var type_user=1;
+        if(option == 1){
         Titlem="Vous avez déja réservé une place dont voici les détails!";
-        else
+        
+        }
+        else{
         Titlem="Votre réservation dont voici les détails, est envoyée avec succès";
+        
+        }
+        if(this.isDriver)
+        type_user=1;
+        else
+          if(this.isAdmin)
+          type_user=2;
+          else
+          type_user=3;
+
       var query = await firebase.firestore().collection("VoyagesList").doc(reservations[0].Id_Voyage).get().then(snap => {
         
  
@@ -313,18 +366,19 @@ async openModal(Reservations, option: number) {
 
       console.table(reservations);
           const modal = await this.modalController.create({
-      component: MyModalPage,
+      component: MyModalPage, 
       componentProps: {
+        "paramClient": this.NomPrenom, 
         "paramID": reservations[0].Id_Voyage,
         "paramDate": Date_Depart,
         "paramChauffeur": reservations[0].Driver,
         "paramConfirme": reservations[0].Confirme,
-        
+        "paramtype_user": type_user,
         "paramTitle": Titlem
 
       }
       
-
+      
       
     });
  
@@ -424,10 +478,10 @@ async openModal(Reservations, option: number) {
 
    async presentAlert(MessageText) {
     const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Alert',
-      subHeader: 'Pour rappel',
-      message: MessageText,
+     // cssClass: 'my-custom-class',
+      header: 'Alerte',
+      subHeader: MessageText,
+      message: '',
       buttons: ['OK']
     });
 
@@ -437,10 +491,10 @@ async openModal(Reservations, option: number) {
   
   async presentAlert2(MessageText) {
     const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Alert',
-      subHeader: '',
-      message: MessageText,
+     // cssClass: 'my-custom-class',
+      header: 'Alerte',
+      subHeader: MessageText,
+      message: '',
       //buttons: ['OK']
     });
 
@@ -448,7 +502,7 @@ async openModal(Reservations, option: number) {
   }
     // function to display the toast with location and dismiss button
 
-    async presentToast(event) {
+  async presentToast(event) {
     
       
       
@@ -594,7 +648,7 @@ toast.present();
       db.collection("userProfile").where("email","==", this.selectedUsermail).get()
       .then( async querySnapshot => {
 
-/*****************Tentatives précedentes******************* */
+/*****************Chercher des tentatives précedentes******************* */
 var db = firebase.firestore();
 await db.collection("ReservationsList").where('Client','==', this.user).where('Id_Voyage','==', this.VoyageEnCours).get()
 .then( querySnapshot => {
@@ -672,7 +726,6 @@ this.Reservations = [];
 
           if(this.ResNbr > 0)
           this.openModal(this.Reservations, 2);
-       //   console.log(this.Reservations);
         });
  });      
 /************************************************************************************ */       
@@ -905,6 +958,7 @@ this.Reservations = [];
               .catch(error => {
                 console.log(error);
               });
+   /************************************************************ */           
 
    })
      .catch(error => {

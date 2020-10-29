@@ -12,6 +12,9 @@
       <ion-button>
         <ion-icon slot="icon-only" name="search"></ion-icon>
       </ion-button>
+      <ion-button *ngIf="isDriver" routerLink="/qrscanner">
+        <ion-icon slot="icon-only" name="qr-scanner"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <span style="font-size: smaller">Bienvenue {{NomPrenom}}</span>
@@ -28,16 +31,14 @@
 
 <span *ngIf="isDriver && !isAdmin" vertical="top">
   
-      <ion-item>
+
         <ion-textarea style="font-size: small;">Le prochain voyage numéro: {{VoyageEnCours}} <br/> Prévu le: <br/>{{DateVoyageEnCours}} </ion-textarea>
-      </ion-item>
-      <ion-item>
+     
         <ion-textarea  style="font-size: small;">Jusqu'au maintenant vous avez:<br/> {{ResNbr}} réservations </ion-textarea>
-      </ion-item>
-      
-               <ion-item >
+     
+    
             
-                <ion-card *ngFor="let resv of Reservations; let i = index" style="width: fit-content;">
+                <ion-card *ngFor="let resv of Reservations; let i = index" style="width: 100%">
                      <ion-card-header>
                        <ion-card-title style="font-size: small;">Reservation n°{{i+1}}</ion-card-title>
                        <ion-card-subtitle> Au nom de:{{resv.NomPrenom}} Tel:{{resv.Tel}} </ion-card-subtitle>
@@ -51,7 +52,7 @@
                          </ion-button>
                      </ion-card-content>
                 </ion-card> 
-            </ion-item>
+  
           
     
               <ion-item>
@@ -74,7 +75,7 @@
   </span>
 
 <span *ngIf="!isDriver && !isAdmin" vertical="top">
-    
+    <span *ngIf="ResNbr == 0" >
                 <ion-label style="font-size: small;" color="mango">Votre direction</ion-label>
                 <ion-select interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()">
                   <ion-select-option value="KT">Tunis</ion-select-option>
@@ -87,9 +88,13 @@
                     <span style="font-size: 12px">  {{date_voyage.Date_Depart}}</span>
                   </ion-select-option>
                 </ion-select>
-         
+    </span>
+    <span *ngIf="ResNbr > 0">
+      <ion-label style="font-size: small;" >Votre direction:{{Direction}}</ion-label><br/>
+      <ion-label style="font-size: small;" >Date prévu du voyage:{{selected_value0}}</ion-label>
+    </span>     
                  
-    <agm-map [zoom]="6" [latitude]="latme" [longitude]="lngme"  #AgmMap [mapTypeId]="'hybrid'">
+    <agm-map [zoom]="8" [latitude]="latme" [longitude]="lngme"  #AgmMap [mapTypeId]="'hybrid'">
       <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng" [label]="position.Dir"
          (markerClick)="onMarkerClick(position)"  >
          <agm-info-window #infowindow [isOpen]="position.lat == latme">
