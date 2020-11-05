@@ -33,3 +33,18 @@ ion-input {
     border-bottom: 0 !important;
   }
 }
+
+.logo
+{
+ height: 250px;
+ background-color: rgb(218, 26, 26);
+ 
+ img
+  {
+    position: relative;
+    font-size: 9em;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+  }
+}

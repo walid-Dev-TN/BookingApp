@@ -20,6 +20,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MyModalPageModule } from './modals/my-modal/my-modal.module';
 import { QRScanner} from '@ionic-native/qr-scanner/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import {GlobalService} from './global.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent],
@@ -32,6 +34,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     MyModalPageModule,
+    HttpClientModule,
     ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })
     
   ],
@@ -40,6 +43,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
     SplashScreen,
     QRScanner,
     AndroidPermissions,
+    GlobalService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

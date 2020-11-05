@@ -25,9 +25,10 @@ export class MyModalPage implements OnInit {
   modalId: string;
   modalDate: string;
   chauffeur: string;
-  confirme: string;
+  
   type_user: number;
   data: any;
+ 
 
   constructor(
     private modalController: ModalController,
@@ -44,10 +45,7 @@ export class MyModalPage implements OnInit {
     this.modalTitle = this.navParams.data.paramTitle;
     this.chauffeur = this.navParams.data.paramChauffeur;
     this.type_user = this.navParams.data.paramtype_user;
-    if(this.navParams.data.paramConfirme)
-    this.confirme = "confirmé";
-    else
-    this.confirme = "pas encore confirmé";  
+    
     if(this.type_user == 3){
     this.textToCode="Nom et Prénom:" + this.modalClient + "/ID Voyage:" + this.modalId + "/Date:" + this.modalDate;
     this.createQRCode();

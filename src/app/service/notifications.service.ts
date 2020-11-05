@@ -3,12 +3,13 @@ import {firebase} from '@firebase/app';
 //import * as firebase from 'firebase'
 import '@firebase/messaging';
 import {environment} from '../../environments/environment';
-
+import {GlobalService} from '../global.service';
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
   
+    constructor(public global: GlobalService) { }
   
   init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -68,8 +69,9 @@ export class NotificationsService {
             await messaging.requestPermission();
 
             const token: string = await messaging.getToken();
-
+            
             console.log('User notifications token:', token);
+            this.global.Token = token;
         } catch (err) {
             console.log('No token received', err);
             // No notifications granted

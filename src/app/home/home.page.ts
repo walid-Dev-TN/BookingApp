@@ -13,7 +13,7 @@ import 'firebase/firestore';
 
 import { Plugins } from "@capacitor/core";
 import { map } from "rxjs/operators";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpErrorResponse   } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { ToastController } from "@ionic/angular";
 
@@ -24,9 +24,10 @@ import { stringify } from 'querystring';
 import { ModalController } from '@ionic/angular';
 import { MyModalPage } from '../modals/my-modal/my-modal.page';
 import { Title } from '@angular/platform-browser';
+import {GlobalService} from '../global.service';
+
 
 //import { HttpClient, HttpHeaders} from '@angular/common/http';
-
 
 @Component({
   selector: 'app-home',
@@ -59,6 +60,8 @@ export class HomePage implements OnDestroy, OnInit {
   public existe: number = 0;
   public Mysnapshot: any;
   public selected_value0;
+  public selected_value_user;
+  public textnotification;
   UserName: string;
   UserAge: number;
   address: string;
@@ -90,6 +93,8 @@ export class HomePage implements OnDestroy, OnInit {
   public Reservations: any;
   public ResNbr: number;
   public Direction: string;
+  public NomDirection; string;
+
   public DatesVoyages: any;
   public NbrVoyages: number;
   public user: string;
@@ -104,10 +109,12 @@ export class HomePage implements OnDestroy, OnInit {
     private http: HttpClient,
     public toastController: ToastController,
     public modalController: ModalController,
-    public alertController: AlertController
+    public alertController: AlertController,
+    public global: GlobalService
 
     ) {}
 
+    
 
    ngOnInit() {
 
@@ -131,6 +138,7 @@ export class HomePage implements OnDestroy, OnInit {
           lat: e.payload.doc.data()['lat'],
           lng: e.payload.doc.data()['lng'],
           Tel: e.payload.doc.data()['Tel'],
+          Token: e.payload.doc.data()['Token'],
           driver: driver
         };
       })
@@ -201,7 +209,7 @@ this.crudService.read_Drivers().subscribe(data => {
             console.log("Admin");
             else
             {
-              if(this.isDriver)
+              if(this.isDriver)  //Chauffeur
               {  
         /*****************Liste des réservations******************* */
 
@@ -243,7 +251,7 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
   console.log("Nbre de reservations reçus: " + this.ResNbr);
 });
 ***********************************************************/
-          else{
+          else{  //Client
 
 /*************************Afficher Modal en cas de réservations en cours************************************* */
 
@@ -274,7 +282,8 @@ this.Reservations = [];
           console.log("ResNbr" + this.ResNbr);
 
 
-          if(this.ResNbr > 0)
+     if(this.ResNbr > 0)
+     {
           this.openModal(this.Reservations, 1);
           console.log(this.Reservations);
 /**********!!!!!!!!******************Update de la destination******************!!!!!!!!**************** */
@@ -288,11 +297,21 @@ firebase
           .then(resp => {
 // this.ResNbr =  snap.size;
 this.Direction = resp.data().destination;
+if(this.Direction == "TK")
+            this.NomDirection = "Tunis - Kébili"
+if(this.Direction == "KT")            
+            this.NomDirection = "Kébili - Tunis"
 this.selected_value0 = resp.data().Date_voyage;
 
 
 var db = firebase.firestore();
-db.collection("userProfile").doc(this.userId).update("Dir", this.Direction );
+db.collection("userProfile").doc(this.userId).update("Dir", this.Direction ).then(() => {
+
+    let db2 = firebase.firestore();
+    db2.collection("userProfile").doc(this.userId).update("Token", this.global.Token );
+          });
+
+console.log("token reçu", this.global);
 
 });
 var latme: number;
@@ -311,7 +330,7 @@ var query = firebase.firestore().collection("userProfile").where('isDriver','=='
           this.lngme = lngme;
         });
       
-        
+      }   
 /**************************************************************************************** */
 
 
@@ -331,8 +350,12 @@ var query = firebase.firestore().collection("userProfile").where('isDriver','=='
 
 }
  
+afficherModal()
+{
+  this.openModal(this.Reservations, 1);  
+}
 
-async openModal(Reservations, option: number) {
+  async openModal(Reservations, option: number) {
   
     try {
       var reservations = Reservations;
@@ -760,25 +783,71 @@ this.Reservations = [];
     }
 
 
+
+
+   
+  sendPostRequest() {
+      let token = this.global.Token;
+     // const headers = new HttpHeaders().set('Content-Type', 'application/json')
+      //                           .set('Accept', '*/*')
+      //                           .set('Connection', 'keep-alive')
+      //                           .set('Accept-Encoding', 'gzip, deflate, br')                            
+      //                           .set('Authorization',  'Bearer ' + "AAAAXS_wR8g:APA91bEG4yu_VvWHs_hhd9D89Bxzdubp-WIpufJalmytHPx4uLOzePPrPwyHUrHmiFslSUV3ykpNxnsugrYR1mh9hJbirGuc-sGV6uomLA75OkH6NLsxk7pLgemTom_PVLzBhX7gTEZy")
+                                 //.set('Access-Control-Allow-Origin','*');
+      const httpOptions = {
+                                  headers: new HttpHeaders({
+                                     'Accept': '*/*',
+                                     //'Connection': 'keep-alive',
+                                     'Content-Type': 'application/json',
+                                     'Authorization': 'key=' +  'AAAAXS_wR8g:APA91bEG4yu_VvWHs_hhd9D89Bxzdubp-WIpufJalmytHPx4uLOzePPrPwyHUrHmiFslSUV3ykpNxnsugrYR1mh9hJbirGuc-sGV6uomLA75OkH6NLsxk7pLgemTom_PVLzBhX7gTEZy',
+                                    // 'Accept-Encoding': 'gzip, deflate, br'
+                                  })
+                                }
+
+
+
+       let postData = {
+        "notification": {
+        "title": "Message du Admin ",
+        "body": this.textnotification
+        },
+        //"to" : this.global.Token
+        "to" : this.selected_value_user
+      }
+    
+console.log(postData);
+      this.http.post("https://fcm.googleapis.com/fcm/send", 
+       JSON.stringify(postData) , httpOptions)
+      .subscribe(data => {
+            console.log(data);
+             }, (error: HttpErrorResponse) => {
+               console.log(error);
+              });
+  
+  }
+
+
+
+
   async Logout(): Promise<void>  {
   this.authservice.logoutUser().then(
     () => {
-      this.loading.dismiss().then(() => {
+    //this.loading.dismiss().then(() => {
         this.router.navigateByUrl('login');
-      });
+    //  });
     },
-    error => {
-      this.loading.dismiss().then(async () => {
+    async error => {
+   //   this.loading.dismiss().then(async () => {
         const alert = await this.alertCtrl.create({
           message: error.message,
           buttons: [{ text: 'Ok', role: 'cancel' }],
         });
         await alert.present();
-      });
+    //  });
     }
     );
-    this.loading = await this.loadingCtrl.create();
-      await this.loading.present();
+   // this.loading = await this.loadingCtrl.create();
+   //   await this.loading.present();
   }
 
 
@@ -819,7 +888,24 @@ this.Reservations = [];
       });
       /*********************************** */
   }
-  ConfirmeRes(email : string){}
+  ConfirmeRes(email : string)
+  {
+    var db = firebase.firestore();
+        let id_reservation: any;
+    db.collection("ReservationsList").where('Client','==', email).where('Id_Voyage','==',this.VoyageEnCours).get().then(res => {
+     //  id_reservation = res.id;
+      res.forEach(doc => {
+        id_reservation = doc.id;
+        var db2 = firebase.firestore();
+        db.collection("ReservationsList").doc(id_reservation).update("Confirme", true ).then(res =>{
+          console.log("confirmation faite avec succès!")
+        });
+        
+        });
+    });
+    
+    
+  }
 
   RemoveRes(email : string){}
 /*************************************************** */

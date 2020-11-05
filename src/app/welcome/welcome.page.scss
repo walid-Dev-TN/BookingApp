@@ -7,3 +7,36 @@
 .myfooter{
     height: 20vh;
 }
+
+.logo
+{
+ height: 250px;
+ background-color: rgb(218, 26, 26);
+ 
+ img
+  {
+    position: relative;
+    
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+ion-content
+{
+div
+{
+  background-color: rgb(218, 26, 26);
+  padding: 2%;
+  
+  ion-label
+  {
+    position: relative;
+    font-size: small;
+   
+  }
+}
+
+}
+

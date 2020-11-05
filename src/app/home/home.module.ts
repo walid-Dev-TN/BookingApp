@@ -12,7 +12,7 @@ import { AgmCoreModule } from "@agm/core";
 import { environment } from "../../environments/environment";
 
 
-import { HttpClientModule } from '@angular/common/http';
+
 
 
 
@@ -21,7 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
     CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,
+    
     RouterModule.forChild([
       {
         path: '',

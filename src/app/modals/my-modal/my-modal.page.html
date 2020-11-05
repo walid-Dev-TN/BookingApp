@@ -1,12 +1,12 @@
 <ion-header>
   <ion-toolbar color="danger">
-    <ion-title>Reservation actuelle</ion-title>
+    <ion-title>Reservation / Ticket Electronique</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
-  <ion-grid>
+  <ion-grid style="height: 80%;">
     <ion-row>
       <ion-col text-center>
         {{modalClient}}
@@ -32,26 +32,34 @@
         Le chauffeur : {{chauffeur}}
       </ion-col>
     </ion-row>
-    <ion-row>
-        <ion-col text-center>
-          
-          cette réservation est {{confirme}}
+    <ion-row >
+        <ion-col text-center >
+          <ng-container *ngIf="!this.navParams.data.paramConfirme">
+
+            <div style="color: #d3091a;">Cette réservation n'est pas encore confirmée</div>
+          </ng-container>
+          <ng-container *ngIf="this.navParams.data.paramConfirme">
+
+            <div style="color: #000000;">Cette réservation est confirmée</div>
+          </ng-container>
+       
+         
         </ion-col>
     </ion-row>
     <ion-row>
       <ion-col text-center>
-        <ion-button (click)="closeModal()">Continuer</ion-button>
+        <div class="center" *ngIf="myAngularxQrCode">
+          <qrcode [qrdata]="myAngularxQrCode" [size]="250" [level]="'M'"></qrcode>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>
 
 
 
-  <div class="center" *ngIf="myAngularxQrCode">
-    <qrcode [qrdata]="myAngularxQrCode" [size]="250" [level]="'M'"></qrcode>
-  </div>
-
   
-    
+
+  <div style="height: 20%;"><ion-button  expand="block" class="bottonw" (click)="closeModal()" color="danger" fill="outline">Continuer</ion-button></div>
+  
 
 </ion-content>

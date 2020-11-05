@@ -14,6 +14,10 @@ import {NotificationsService} from './service/notifications.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
+
+  navigate : any;
+
+
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
@@ -21,6 +25,7 @@ export class AppComponent {
     private notificationsService: NotificationsService
    )
    {
+    this.sideMenu();
     this.initializeApp();
    }
 
@@ -43,4 +48,27 @@ export class AppComponent {
        await this.notificationsService.requestPermission();
     });
 }
+
+sideMenu()
+  {
+    this.navigate =
+    [
+      {
+        title : "Home",
+        url   : "/home",
+        icon  : "home"
+      },
+      {
+        title : "News",
+        url   : "/News",
+        icon  : "chatboxes"
+      },
+      {
+        title : "Contacts",
+        url   : "/contacts",
+        icon  : "contacts"
+      },
+    ]
+  }
+
 }

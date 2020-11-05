@@ -113,7 +113,7 @@ export class QrscannerPage {
       if (code) {
         this.scanActive = false;
         this.scanResult = code.data;
-        this.showQrToast();
+      //  this.showQrToast();
       } else {
         if (this.scanActive) {
           requestAnimationFrame(this.scan.bind(this));
@@ -146,7 +146,7 @@ export class QrscannerPage {
    
       if (code) {
         this.scanResult = code.data;
-        this.showQrToast();
+      //  this.showQrToast();
       }
     };
     img.src = URL.createObjectURL(file);
