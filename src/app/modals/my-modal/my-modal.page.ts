@@ -3,6 +3,9 @@ import {
 ModalController, 
 NavParams 
 } from '@ionic/angular';
+
+import * as CryptoJS from 'crypto-js';
+import {GlobalService} from '../../global.service';
 //import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 //import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner/ngx';
 
@@ -28,11 +31,12 @@ export class MyModalPage implements OnInit {
   
   type_user: number;
   data: any;
- 
+  conversionEncryptOutput: string;
 
   constructor(
     private modalController: ModalController,
-    private navParams: NavParams,
+    public navParams: NavParams,
+    public global: GlobalService
     //private barcodeScanner: BarcodeScanner
     //private qrScanner: QRScanner
   ) {}
@@ -48,6 +52,8 @@ export class MyModalPage implements OnInit {
     
     if(this.type_user == 3){
     this.textToCode="Nom et Prénom:" + this.modalClient + "/ID Voyage:" + this.modalId + "/Date:" + this.modalDate;
+    this.conversionEncryptOutput = CryptoJS.AES.encrypt(this.textToCode.trim(), this.global.encPassword.trim()).toString();  
+   
     this.createQRCode();
     }
 
@@ -56,8 +62,8 @@ export class MyModalPage implements OnInit {
   }
 
   createQRCode() {
-    this.myAngularxQrCode = this.textToCode;
-    this.textToCode = "";
+    this.myAngularxQrCode = this.conversionEncryptOutput;
+    this.conversionEncryptOutput = "";
   }
 
 /*********************************************************

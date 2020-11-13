@@ -23,7 +23,6 @@ const routes: Routes = [
      loadChildren: () => import('./modals/my-modal/my-modal.module').then(m =>m.MyModalPageModule),
      canActivate: [AuthGuard],
   },
-  { path: 'qrcode-scanner', loadChildren: './qrcode-scanner/qrcode-scanner.module#QrcodeScannerPageModule' },
   { 
      path: 'qrscanner',
      loadChildren: () => import('./qrscanner/qrscanner.module').then(m => m.QrscannerPageModule),

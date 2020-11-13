@@ -4,43 +4,65 @@ import {firebase} from '@firebase/app';
 import '@firebase/messaging';
 import {environment} from '../../environments/environment';
 import {GlobalService} from '../global.service';
+import { AngularFireMessaging} from '@angular/fire/messaging';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
-  
-    constructor(public global: GlobalService) { }
+
+    currentMessage: any;
+
+     messaging: any;
+
+
+   // public registration: ServiceWorkerRegistration;
+    constructor(public global: GlobalService, private angularFireMessaging: AngularFireMessaging  ) { 
+      
+    }
   
   init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         navigator.serviceWorker.ready.then((registration) => {
+
+
+           // console.log(registration);
+
             // Don't crash an error if messaging not supported
             if (!firebase.messaging.isSupported()) {
                    resolve();
                    return;
             }
 
-            const messaging = firebase.messaging();
+            this.messaging = firebase.messaging();
 
             // Register the Service Worker
-            messaging.useServiceWorker(registration);
-
+            this.messaging.useServiceWorker(registration);
+           // this.registration = registration;
             // Initialize your VAPI key
-            messaging.usePublicVapidKey(
+            this.messaging.usePublicVapidKey(
                   environment.firebase.vapidKey
             );
 
             // Optional and not covered in the article
             // Listen to messages when your app is in the foreground
-            messaging.onMessage((payload) => {
-                console.log(payload);
+            this.messaging.onMessage((payload) => {
+                console.log(JSON.stringify(payload));
             });
+
+           
+
+            
+
             // Optional and not covered in the article
             // Handle token refresh
-            messaging.onTokenRefresh(() => {
-                messaging.getToken().then(
+            this.messaging.onTokenRefresh(() => {
+                this.messaging.getToken().then(
                 (refreshedToken: string) => {
-                    console.log(refreshedToken);
+                    this.global.Token = refreshedToken;
+                    console.log("refreshedToken", refreshedToken);
                 }).catch((err) => {
                     console.error(err);
                 });
@@ -53,6 +75,42 @@ export class NotificationsService {
     });
   }
 
+  async refreshToken(): Promise<void>
+  {
+      return new Promise<void>(async (resolve, reject) => {
+
+     //   navigator.serviceWorker.register('../firebase-messaging-sw.js').then(async (registration) => {
+
+        
+
+        console.log("refreshing token!!!!!!");
+        
+            // Don't crash an error if messaging not supported
+     //       console.log(registration);
+            //const messaging = firebase.messaging();
+
+            // Register the Service Worker
+         //   messaging.useServiceWorker(this.registration);
+
+            // Initialize your VAPI key
+          
+            
+            await this.messaging.deleteToken();
+        console.log("token deleted");
+            await this.messaging.getToken().then(
+                (refreshedToken: string) => {
+                    this.global.Token = refreshedToken;
+                    console.log("refreshedToken", refreshedToken);
+                }).catch((err) => {
+                    console.error(err);
+                });
+       
+    
+        resolve();
+        
+  //  })
+  });
+}
 
   requestPermission(): Promise<void> {
     return new Promise<void>(async (resolve) => {
@@ -65,13 +123,14 @@ export class NotificationsService {
             return;
         }
         try {
-            const messaging = firebase.messaging();
-            await messaging.requestPermission();
+            this.messaging = firebase.messaging();
+            await Notification.requestPermission();
 
-            const token: string = await messaging.getToken();
+            const token: string = await this.messaging.getToken();
             
             console.log('User notifications token:', token);
-            this.global.Token = token;
+            this.global.Token =  token;
+            console.log('global variable token:', this.global.Token);
         } catch (err) {
             console.log('No token received', err);
             // No notifications granted
@@ -80,6 +139,9 @@ export class NotificationsService {
         resolve();
     });
 }
+
+
+
 }
 
 

@@ -1,15 +1,51 @@
 
 
 
-<ion-content class="mycontent">
+<ion-content class="mycontent" >
   
-  <div>
-    <ion-label  color="light" fill="clear" right>Nous sommes?</ion-label>
+  <div class="DIVClass">
+    <ion-toolbar color="rgb(218,26,26)" fill="clear" >
+      <ion-buttons slot="start"   >
+        <ion-menu-button color="light" ></ion-menu-button>
+      </ion-buttons>
+      
+      </ion-toolbar>
+
   </div>
   <div class="logo">
-   <!--<ion-icon color="light" slot="icon-only"  name="search"></ion-icon> --->
-    <img  src="assets/icons/logo-blassa.png">
+    <!--<ion-icon color="light" slot="icon-only"  name="search"></ion-icon> --->
+     <img  src="assets/icons/logo-blassa.png">
+   </div>
+  <div>
+  
+    <ion-list>
+      <ion-list-header> Fonctionnement:</ion-list-header> 
+      <ion-item>
+        <ion-avatar slot="start">  
+          <img src="assets/icons/car-sport-outline.svg">
+        </ion-avatar>  
+        
+         <ion-label>Veuillez selectionner votre destination pour afficher les dates disponibles et la position exacte du Driver</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-avatar slot="start"> 
+            <img src="assets/icons/hand-left-outline.svg">
+           
+          </ion-avatar> 
+        
+        Réservez votre place et attendez la confirmation
+       </ion-item>
+       <ion-item>
+        <ion-avatar slot="start">  
+          <img src="assets/icons/card-outline.svg">
+        </ion-avatar> 
+       Payez votre place grace au QR Code (Ticket électronique)
+       </ion-item>
+  
+    </ion-list>
+    Bonne Chance
   </div>
+  
  
 
 

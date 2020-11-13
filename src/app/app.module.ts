@@ -21,7 +21,11 @@ import { MyModalPageModule } from './modals/my-modal/my-modal.module';
 import { QRScanner} from '@ionic-native/qr-scanner/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import {GlobalService} from './global.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import {MyInterceptorService} from './service/MyInterceptor.service';
+
+
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -35,6 +39,7 @@ import { HttpClientModule } from '@angular/common/http';
     AngularFireAuthModule,
     MyModalPageModule,
     HttpClientModule,
+    
     ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })
     
   ],
@@ -44,6 +49,9 @@ import { HttpClientModule } from '@angular/common/http';
     QRScanner,
     AndroidPermissions,
     GlobalService,
+    [
+      { provide: HTTP_INTERCEPTORS, useClass: MyInterceptorService, multi: true }
+  ],
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

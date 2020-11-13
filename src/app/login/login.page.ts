@@ -3,12 +3,12 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { LoadingController, NavController, AlertController} from '@ionic/angular';
 import { AuthService } from './../service/auth.service';
 import { Router } from '@angular/router';
-import * as firebase from 'firebase/app';
+//import * as firebase from 'firebase/app';
 
-import { Plugins } from "@capacitor/core";
-import { map } from "rxjs/operators";
+//import { Plugins } from "@capacitor/core";
+//import { map } from "rxjs/operators";
 //import { HttpClient } from "@angular/common/http";
-import { environment } from "../../environments/environment";
+//import { environment } from "../../environments/environment";
 
 
 
@@ -25,7 +25,7 @@ export class LoginPage implements OnInit {
   code = '';
   showCodeInput = false;
   phoneNumber: any;
-  
+  public selection: any;
   lat: number;
   lng: number;
   address: string;

@@ -1,14 +1,40 @@
+<div class="logo">
+   
+  <img  src="assets/icons/logo-blassa.png">
 
+</div>
+
+<ion-list>
+  <ion-radio-group [(ngModel)]="selection">
+    <ion-list-header>
+      <ion-label>
+        Méthode d'authentification
+      </ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label>Numéro du téléphone</ion-label>
+      <ion-radio value="1"></ion-radio>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Email & mot de passe</ion-label>
+      <ion-radio value="2"></ion-radio>
+    </ion-item>
+
+    </ion-radio-group>
+</ion-list>
+<ng-container *ngIf="selection == '1'">
+Connection par numéro de téléphone et Captcha. En cours de construction
+
+</ng-container>
+<ng-container *ngIf="selection == '2'">
 
 
 
 <form [formGroup]="loginForm">
  
-  <div class="logo">
-   
-       <img  src="assets/icons/logo-blassa.png">
- 
-  </div>
+  
   <ion-item>
     <ion-label position="stacked">Email</ion-label>
     <ion-input
@@ -56,7 +82,7 @@
 
 
 </form>
-
+</ng-container>
 
 <!---
 <ion-button expand="block" fill="clear" routerLink="/reset-password">

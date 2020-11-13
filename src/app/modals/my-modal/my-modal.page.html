@@ -17,11 +17,11 @@
         {{modalTitle}}
       </ion-col>
     </ion-row>
-    <ion-row>
+    <!--<ion-row>
       <ion-col text-center>
         ID du voyage : {{modalId}}
       </ion-col>
-    </ion-row>
+    </ion-row>-->
     <ion-row>
       <ion-col text-center>
         Date prévue du voyage : {{modalDate}}
@@ -40,7 +40,7 @@
           </ng-container>
           <ng-container *ngIf="this.navParams.data.paramConfirme">
 
-            <div style="color: #000000;">Cette réservation est confirmée</div>
+            <div style="color: #000000;">Cette réservation est confirmée <br> Le paiement est possible grace au QR Code suivant:</div>
           </ng-container>
        
          

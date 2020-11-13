@@ -2,6 +2,14 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { ToastController, LoadingController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import jsQR from 'jsqr';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
+import {GlobalService} from '../global.service';
+import * as CryptoJS from 'crypto-js';
+
+
 
 @Component({
   selector: 'app-qrscanner',
@@ -20,12 +28,16 @@ export class QrscannerPage {
   scanActive = false;
   scanResult = null;
   loading: HTMLIonLoadingElement = null;
- 
+  ResultData: Array<string>;
+  conversionDecryptOutput: string;
+
   constructor(
+    private firestore: AngularFirestore,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private plt: Platform,
-    private router: Router
+    private router: Router,
+    public global: GlobalService
   ) {
     const isInStandaloneMode = () =>
       'standalone' in window.navigator && window.navigator['standalone'];
@@ -113,6 +125,7 @@ export class QrscannerPage {
       if (code) {
         this.scanActive = false;
         this.scanResult = code.data;
+        this.TraitementResults(code.data);
       //  this.showQrToast();
       } else {
         if (this.scanActive) {
@@ -151,6 +164,22 @@ export class QrscannerPage {
     };
     img.src = URL.createObjectURL(file);
   }
+
+
+  TraitementResults( Resultdata: string){
+
+    var conversionDecryptOutput = CryptoJS.AES.decrypt(Resultdata.trim(), this.global.encPassword.trim()).toString(CryptoJS.enc.Utf8);  
+    this.ResultData = conversionDecryptOutput.split('/');
+    console.log(this.ResultData[0]);
+    console.log(this.ResultData[1]);
+    console.log(this.ResultData[2]);
+    if(this.ResultData[1] == 'ID Voyage:' + this.global.VoyageEnCours)
+     this.ResultData.push("1");
+    else
+    this.ResultData.push("0");
+  }
+
+
 
 
   stopScan() {

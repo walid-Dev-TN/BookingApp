@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="danger">
     <ion-title>
      QR Code Scan
     </ion-title>
@@ -16,7 +16,7 @@
     Capturer une image
   </ion-button>
  -->
-  <ion-button expand="full" (click)="startScan()">
+  <ion-button expand="block" shape="round" color="danger" fill="outline" (click)="startScan()">
     <ion-icon slot="start" name="qr-scanner"></ion-icon>
     Commencer le scan
   </ion-button>
@@ -37,14 +37,25 @@
     <ion-icon slot="start" name="close"></ion-icon>
     Arreter le scan
   </ion-button>
- 
-  <ion-card *ngIf="scanResult">
+ <ng-container *ngIf="scanResult">
+  <ion-card *ngIf="ResultData[3] == '1'" style="background: green;">
     <ion-card-header>
-      <ion-card-title>QR Code</ion-card-title>
+      <ion-card-title>Ticket électronique valide</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      {{ResultData[0]}}<br>
+      {{ResultData[1]}}<br>
+      {{ResultData[2]}}
+    </ion-card-content>
+  </ion-card>
+  <ion-card *ngIf="ResultData[3] == '0'" style="background: red;">
+    <ion-card-header>
+      <ion-card-title>Ticket électronique non valide!</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       {{ scanResult }}
     </ion-card-content>
   </ion-card>
- 
+</ng-container>
+
 </ion-content>

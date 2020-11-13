@@ -7,6 +7,9 @@ import {firebase} from '@firebase/app';
 //import * as firebase from 'firebase'
 import {environment} from '../environments/environment';
 import {NotificationsService} from './service/notifications.service';
+import { SwUpdate, SwPush } from '@angular/service-worker';
+import { HttpClient} from '@angular/common/http';
+import {GlobalService} from './global.service';
 
 @Component({
   selector: 'app-root',
@@ -22,9 +25,29 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    public http: HttpClient,
+    public global: GlobalService
+    //updates: SwUpdate, push: SwPush
    )
    {
+    console.log(this.platform);
+
+    //if (!this.http.headers.has('User-Agent')) {
+      //  this.global.UserAgent = this.request.headers.get('User-Agent');
+       // console.log(this.global.UserAgent);
+    //}
+    //updates.available.subscribe(() => updates.activateUpdate().then(() => {
+    //  console.log('reload for update');
+    //  document.location.reload();
+    //}));
+    //push.messages.subscribe(msg => console.log('push message', msg));
+    //push.notificationClicks.subscribe(click => console.log('notification click', click));
+    //if (!firebase.apps.length) {
+    //  firebase.initializeApp(environment.firebase);
+    //  navigator.serviceWorker.getRegistration().then(swr => firebase.messaging().useServiceWorker(swr));
+    //}
+
     this.sideMenu();
     this.initializeApp();
    }

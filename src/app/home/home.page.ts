@@ -4,6 +4,7 @@ import { LoadingController, AlertController } from '@ionic/angular';
 
 import { CrudService } from './../service/crud.service';
 import { AuthService } from './../service/auth.service';
+import {NotificationsService} from './../service/notifications.service';
 import { Router } from '@angular/router';
 
 import * as firebase from 'firebase/app';
@@ -23,9 +24,12 @@ import { stringify } from 'querystring';
 
 import { ModalController } from '@ionic/angular';
 import { MyModalPage } from '../modals/my-modal/my-modal.page';
-import { Title } from '@angular/platform-browser';
 import {GlobalService} from '../global.service';
+import {MyInterceptorService} from '../service/MyInterceptor.service';
 
+const {Device } = Plugins; 
+//import { Uid } from '@ionic-native/uid/ngx';
+//import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 //import { HttpClient, HttpHeaders} from '@angular/common/http';
 
@@ -77,9 +81,9 @@ export class HomePage implements OnDestroy, OnInit {
   Messages: any;
   Theme: string;
   Message: string;
-  
-  
-  
+  CodeSecret: string;
+  UUID; string;
+  info: string;
   
     
   private ngUnsubscribe = new Subject();
@@ -93,7 +97,7 @@ export class HomePage implements OnDestroy, OnInit {
   public Reservations: any;
   public ResNbr: number;
   public Direction: string;
-  public NomDirection; string;
+  public NomDirection: string;
 
   public DatesVoyages: any;
   public NbrVoyages: number;
@@ -104,22 +108,33 @@ export class HomePage implements OnDestroy, OnInit {
   private geoCoder;
   dataReturned: any;
 
+  
 
   constructor( private firestore: AngularFirestore, private loadingCtrl: LoadingController, public alertCtrl: AlertController, private crudService: CrudService, private authservice: AuthService, private router: Router,
     private http: HttpClient,
     public toastController: ToastController,
     public modalController: ModalController,
     public alertController: AlertController,
-    public global: GlobalService
+    public global: GlobalService,
+    private notificationsService: NotificationsService,
+    private interceptor: MyInterceptorService,
+    //private uid: Uid,
+    //private androidPermissions: AndroidPermissions
 
-    ) {}
+
+    ) { 
+     
+    }
+
+ 
+
+    ngOnInit() {
 
     
+      
 
-   ngOnInit() {
 
-  
-      this.crudService.read_Users().subscribe(data => {
+     this.crudService.read_Users().subscribe(data => {
      
       this.Users = data.map(e => {
         var driver: string = "";
@@ -169,52 +184,93 @@ this.crudService.read_Drivers().subscribe(data => {
 /******************************** */
 
 
-     firebase.auth().onAuthStateChanged(user => {
+     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-
+        console.log("user:",user)
         // call get current location function on initializing
             this.getCurrentLocation(user.uid);
 
-        firebase
+        await firebase
           .firestore()
           .doc(`/userProfile/${user.uid}`)
           .get()
-          .then(  userProfileSnapshot => {
+          .then(  async userProfileSnapshot => {
 
-            console.log(user.uid);
-            
-           if (userProfileSnapshot.data().email)
-            this.user = userProfileSnapshot.data().email;
+            console.log("user.uid:", user.uid);
+            this.global.UserID = user.uid;
+
+
             this.userId = user.uid;
             this.pended = userProfileSnapshot.data().pending;
+            this.UUID = userProfileSnapshot.data().UUID;
+
+           // if (userProfileSnapshot.data().email)
+            this.user = userProfileSnapshot.data().email;
+            console.log("this.user:", this.user);
+           // if(userProfileSnapshot.data().Tel)
+           // this.user = userProfileSnapshot.data().tel;
+           // this.userId = user.uid;
+           // this.pended = userProfileSnapshot.data().pending;
             this.isAdmin = userProfileSnapshot.data().isAdmin;
 
             this.isDriver = userProfileSnapshot.data().isDriver;
             this.NomPrenom = userProfileSnapshot.data().NomPrenom; 
-            this.VoyageEnCours = userProfileSnapshot.data().Id_Voyage;
+            this.VoyageEnCours = "0";
+            if(userProfileSnapshot.data().isDriver)
+              {
+                       this.VoyageEnCours = userProfileSnapshot.data().Id_Voyage;
+                       this.global.VoyageEnCours = userProfileSnapshot.data().Id_Voyage;
+              }
             this.DateVoyageEnCours = userProfileSnapshot.data().Date_Depart;
-           // this.Direction = userProfileSnapshot.data().Dir;
+            this.Mytoken = userProfileSnapshot.data().Token;
+        
+         
+          if(this.pended)
+          { //compte pas encore validé
+            this.CodeSecret = '0';
+            await this.presentAlert2("Pas encore validé!!");
+           
+          }
+          else // detection du id du device
+          {
+
+            var info = await Device.getInfo();
+            this.info = info.uuid;
+            console.log("this.info:", this.info);
+
+              if(this.info != this.UUID)
+              {
+                this.CodeSecret = '0';
+                await this.presentAlert3("Vous avez changé d'application!! pour continuer veuillez saisir votre code secret");
+              }
+              else
+              {
+                this.CodeSecret = '123';
+                this.openModal(this.Reservations, 1);
+               // await this.afficherUserInfos();
+              }     
             
-          }).then(() => {
+           }
 
-            if(this.pended){
-              this.presentAlert2("Pas encore validé!!")
-              this.Logout();
-              this.router.navigateByUrl("login");
-            }
+        
 
+ /******************************************************************************** */
 
-
-            if(this.isAdmin)
-            console.log("Admin");
-            else
-            {
-              if(this.isDriver)  //Chauffeur
-              {  
+  if(this.isAdmin)
+      console.log("Admin");
+   else
+   
+   {
+      if(this.isDriver)  //Chauffeur
+      {  
+        console.log("Driver");
         /*****************Liste des réservations******************* */
 
         this.Reservations = [];
-        var query = firebase.firestore().collection("ReservationsList").where('Driver','==', this.user);
+        this.ResNbr = 0;
+        var email = this.user;
+        console.log("email:", email);
+        var query = await firebase.firestore().collection("ReservationsList").where('Driver','==', email);
         //var query2 = query.where('Dir','==', this.Direction);
         //var query3 = query2.where('isDriver','==', true);
       
@@ -251,8 +307,8 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
   console.log("Nbre de reservations reçus: " + this.ResNbr);
 });
 ***********************************************************/
-          else{  //Client
-
+    else{  //Client
+      console.log("Client");
 /*************************Afficher Modal en cas de réservations en cours************************************* */
 
 this.VoyagesEncoreValides = [];
@@ -282,9 +338,9 @@ this.Reservations = [];
           console.log("ResNbr" + this.ResNbr);
 
 
-     if(this.ResNbr > 0)
+     if(this.ResNbr > 0 )
      {
-          this.openModal(this.Reservations, 1);
+          
           console.log(this.Reservations);
 /**********!!!!!!!!******************Update de la destination******************!!!!!!!!**************** */
 var Id_Voyage = this.Reservations[0].Id_Voyage;
@@ -305,13 +361,9 @@ this.selected_value0 = resp.data().Date_voyage;
 
 
 var db = firebase.firestore();
-db.collection("userProfile").doc(this.userId).update("Dir", this.Direction ).then(() => {
+db.collection("userProfile").doc(this.userId).update("Dir", this.Direction );
 
-    let db2 = firebase.firestore();
-    db2.collection("userProfile").doc(this.userId).update("Token", this.global.Token );
-          });
 
-console.log("token reçu", this.global);
 
 });
 var latme: number;
@@ -336,20 +388,19 @@ var query = firebase.firestore().collection("userProfile").where('isDriver','=='
 
 
 
-        });
- });      
+            });
+          });      
 /************************************************************************************ */       
 
             console.log("Passager");
           }
       }
           });
-      }
-    });
     
-
+  }
+ });
 }
- 
+
 afficherModal()
 {
   this.openModal(this.Reservations, 1);  
@@ -358,7 +409,7 @@ afficherModal()
   async openModal(Reservations, option: number) {
   
     try {
-      var reservations = Reservations;
+      var reservations: Array<any> = Reservations;
       var Date_Depart;
       var Titlem = "";
       var type_user=1;
@@ -518,7 +569,72 @@ afficherModal()
       header: 'Alerte',
       subHeader: MessageText,
       message: '',
+      buttons: [
+        {
+            text: 'Ok',
+            handler: async (alertData) => {
+                this.Logout(); 
+                //console.log(alertData.codesecret);
+            }
+        }
+    ]
+
       //buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  async presentAlert3(MessageText) {
+    const alert = await this.alertController.create({
+     // cssClass: 'my-custom-class',
+      header: 'Alerte',
+      subHeader: MessageText,
+      message: '',
+      inputs: [{
+                name : 'codesecret',
+                type: 'password',
+                placeholder : 'Code-secret'
+              }],
+      buttons: [
+                {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    cssClass: 'secondary',
+                    handler: async () => {
+                        console.log('Confirm Cancel');
+                        await this.Logout();
+                    }
+                }, {
+                    text: 'Ok',
+                    handler: async (alertData) => {
+                        this.CodeSecret = alertData.codesecret; 
+                        if(this.CodeSecret != '123')
+                        await this.Logout();
+                        else
+                        {
+                          var db = firebase.firestore();
+                           db.collection("userProfile").doc(this.userId).update("UUID", this.info ).then(() => {
+                          this.UUID = this.info;
+                          //this.afficherUserInfos();
+                          if(!this.isDriver && !this.isAdmin)
+                            this.openModal(this.Reservations, 1);
+                          });
+
+                      
+                          // this.notificationsService.requestPermission().then (() => {
+                            this.notificationsService.refreshToken().then( () =>{
+                              console.log("le global est devenu:", this.global.Token);
+                              db.collection("userProfile").doc(this.userId).update("Token", this.global.Token );
+                            }); 
+                        //  });
+
+                            // On successful registration, the device will send us the Device Token. 
+                        }
+                        //console.log(alertData.codesecret);
+                    }
+                }
+            ]
     });
 
     await alert.present();
@@ -747,7 +863,7 @@ this.Reservations = [];
           console.log("ResNbr" + this.ResNbr);
 
 
-          if(this.ResNbr > 0)
+          if(this.ResNbr > 0 && this.CodeSecret == '123')
           this.openModal(this.Reservations, 2);
         });
  });      
@@ -809,7 +925,8 @@ this.Reservations = [];
        let postData = {
         "notification": {
         "title": "Message du Admin ",
-        "body": this.textnotification
+        "body": this.textnotification,
+        "icon": "assets/icons/logo-blassa.png"
         },
         //"to" : this.global.Token
         "to" : this.selected_value_user
@@ -833,19 +950,9 @@ console.log(postData);
   this.authservice.logoutUser().then(
     () => {
     //this.loading.dismiss().then(() => {
-        this.router.navigateByUrl('login');
+      this.router.navigate(['/login']);
     //  });
-    },
-    async error => {
-   //   this.loading.dismiss().then(async () => {
-        const alert = await this.alertCtrl.create({
-          message: error.message,
-          buttons: [{ text: 'Ok', role: 'cancel' }],
-        });
-        await alert.present();
-    //  });
-    }
-    );
+    });
    // this.loading = await this.loadingCtrl.create();
    //   await this.loading.present();
   }
