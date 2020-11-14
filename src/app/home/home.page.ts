@@ -223,38 +223,7 @@ this.crudService.read_Drivers().subscribe(data => {
               }
             this.DateVoyageEnCours = userProfileSnapshot.data().Date_Depart;
             this.Mytoken = userProfileSnapshot.data().Token;
-        
-         
-          if(this.pended)
-          { //compte pas encore validé
-            this.CodeSecret = '0';
-            await this.presentAlert2("Pas encore validé!!");
-           
-          }
-          else // detection du id du device
-          {
-
-            var info = await Device.getInfo();
-            this.info = info.uuid;
-            console.log("this.info:", this.info);
-
-              if(this.info != this.UUID)
-              {
-                this.CodeSecret = '0';
-                await this.presentAlert3("Vous avez changé d'application!! pour continuer veuillez saisir votre code secret");
-              }
-              else
-              {
-                this.CodeSecret = '123';
-                this.openModal(this.Reservations, 1);
-               // await this.afficherUserInfos();
-              }     
-            
-           }
-
-        
-
- /******************************************************************************** */
+ /***********************************Controle du Role du User**************************************** */  
 
   if(this.isAdmin)
       console.log("Admin");
@@ -307,14 +276,14 @@ this.firestore.collection('ReservationsList', x => x.where('Driver','==',this.us
   console.log("Nbre de reservations reçus: " + this.ResNbr);
 });
 ***********************************************************/
-    else{  //Client
+     else{  //Client
       console.log("Client");
 /*************************Afficher Modal en cas de réservations en cours************************************* */
 
 this.VoyagesEncoreValides = [];
 var query = firebase.firestore().collection("userProfile").where('isDriver','==', true);
 
- query.get().then(snap => {
+await query.get().then(async snap => {
   
   snap.forEach(doc => {
     this.VoyagesEncoreValides.push(doc.data()['Id_Voyage']);
@@ -327,7 +296,7 @@ this.Reservations = [];
         //var query2 = query.where('Dir','==', this.Direction);
         //var query3 = query2.where('isDriver','==', true);
       
-        query.get().then(snap => {
+       await query.get().then(snap => {
          // this.ResNbr =  snap.size;
           snap.forEach(doc => {
           if(this.VoyagesEncoreValides.includes(doc.data()['Id_Voyage']))
@@ -383,28 +352,59 @@ var query = firebase.firestore().collection("userProfile").where('isDriver','=='
         });
       
       }   
-/**************************************************************************************** */
-
-
 
 
             });
-          });      
-/************************************************************************************ */       
-
+   });      
+  
             console.log("Passager");
           }
       }
-          });
+         
     
+  
+
+
+/*********************************************Controle du device utilisé pour l'accès********************************************* */         
+if(this.pended)
+{ //compte pas encore validé
+  this.CodeSecret = '0';
+  await this.presentAlert2("Pas encore validé!!");
+ 
+}
+else // detection du id du device
+{
+
+  var info = await Device.getInfo();
+  this.info = info.uuid;
+  console.log("this.info:", this.info);
+
+    if(this.info === this.UUID)
+    {
+
+      this.CodeSecret = '123';
+      if(!this.isDriver && !this.isAdmin)
+                  this.openModal(this.Reservations, 1);
+
+       }
+    else
+    {
+      this.CodeSecret = '0';
+      await this.presentAlert3("Vous avez changé d'application!! pour continuer veuillez saisir votre code secret");
+                 
+    }     
+  
+ }
+
+
+
+/******************************************************************************** */
+
+   });
   }
  });
 }
-
-afficherModal()
-{
-  this.openModal(this.Reservations, 1);  
-}
+    
 
   async openModal(Reservations, option: number) {
   

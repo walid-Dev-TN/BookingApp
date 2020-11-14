@@ -19,9 +19,7 @@ export class NotificationsService {
 
 
    // public registration: ServiceWorkerRegistration;
-    constructor(public global: GlobalService, private angularFireMessaging: AngularFireMessaging  ) { 
-      
-    }
+    constructor(public global: GlobalService, private angularFireMessaging: AngularFireMessaging  ) {}
   
   init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -46,7 +44,7 @@ export class NotificationsService {
                   environment.firebase.vapidKey
             );
 
-            // Optional and not covered in the article
+            
             // Listen to messages when your app is in the foreground
             this.messaging.onMessage((payload) => {
                 console.log(JSON.stringify(payload));
@@ -56,7 +54,7 @@ export class NotificationsService {
 
             
 
-            // Optional and not covered in the article
+            
             // Handle token refresh
             this.messaging.onTokenRefresh(() => {
                 this.messaging.getToken().then(

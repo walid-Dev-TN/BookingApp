@@ -21,6 +21,7 @@ import { MyModalPageModule } from './modals/my-modal/my-modal.module';
 import { QRScanner} from '@ionic-native/qr-scanner/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import {GlobalService} from './global.service';
+import {NotificationsService} from './service/notifications.service';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {MyInterceptorService} from './service/MyInterceptor.service';
 
@@ -49,6 +50,7 @@ import {MyInterceptorService} from './service/MyInterceptor.service';
     QRScanner,
     AndroidPermissions,
     GlobalService,
+    NotificationsService,
     [
       { provide: HTTP_INTERCEPTORS, useClass: MyInterceptorService, multi: true }
   ],
