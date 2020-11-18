@@ -2,7 +2,7 @@
   
   <ion-toolbar color="danger">
     <ion-title>
-      <ion-icon  color="light" src="assets/icons/car-sport-outline.svg"></ion-icon>
+    Page Principale
     </ion-title>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -20,7 +20,7 @@
       
     </ion-buttons>
   </ion-toolbar>
-  <span style="font-size: smaller">Bienvenue {{NomPrenom}}</span>
+  <span style="font-size: smaller; color: white; background:#f04141; width: 100%;">Bienvenue {{NomPrenom}}</span>
 </ion-header>
 
 
@@ -32,7 +32,7 @@
         
     
 
-<span *ngIf="isDriver && !isAdmin" vertical="top">
+<span *ngIf="isDriver && !isAdmin && CodeSecret === '123'" vertical="top">
   
 
         <ion-textarea style="font-size: small;">Le prochain voyage numéro: {{VoyageEnCours}} <br/> Prévu le: <br/>{{DateVoyageEnCours}} </ion-textarea>
@@ -82,7 +82,7 @@
           
   </span>
 
-<span *ngIf="!isDriver && !isAdmin" vertical="top">
+<span *ngIf="!isDriver && !isAdmin && CodeSecret === '123'" vertical="top">
     <span *ngIf="ResNbr == 0" >
                 <ion-label style="font-size: small;" color="primary">Choisir Votre direction</ion-label>
                 <ion-select interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()">
@@ -131,13 +131,13 @@
       
 
 
- <span *ngIf="isAdmin && !isDriver"> 
+ <span *ngIf="isAdmin && !isDriver && CodeSecret === '123'"> 
   
   
   <ion-label style="font-size: small;" color="primary">Choisir un utilisateur</ion-label>
                 <ion-select interface="popover" [(ngModel)]="selected_value_user">
-                  <ion-select-option *ngFor="let User of Users" [value]="User.Token">
-                    <span style="font-size: 12px">  {{User.NomPrenom}}</span>
+                  <ion-select-option *ngFor="let User of Users" [value]="User">
+                    <span style="font-size: 12px">  {{User.NomPrenom}} : {{User.type_user}}</span>
                   </ion-select-option>
                 </ion-select> 
   
@@ -148,7 +148,7 @@
   </ion-button>
   
   
-  <ion-card  *ngFor="let item of Users">
+  <ion-card  *ngFor="let item of Users" style="width: 100%;">
     <span *ngIf="!item.isEdit; else elseBlock">
       <ion-card-header>
         <ion-card-title>{{item.email}} of {{item.Tel}}</ion-card-title>

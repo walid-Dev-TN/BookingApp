@@ -5,8 +5,10 @@ import '@firebase/messaging';
 import {environment} from '../../environments/environment';
 import {GlobalService} from '../global.service';
 import { AngularFireMessaging} from '@angular/fire/messaging';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
+import { map } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,12 @@ export class NotificationsService {
     currentMessage: any;
 
      messaging: any;
+
+     public NotificationPayload: any;
+
+     
+     private NotifSubject = new Subject<any>();
+
 
 
    // public registration: ServiceWorkerRegistration;
@@ -48,6 +56,11 @@ export class NotificationsService {
             // Listen to messages when your app is in the foreground
             this.messaging.onMessage((payload) => {
                 console.log(JSON.stringify(payload));
+                this.NotifSubject.next(JSON.stringify(payload));
+            /*   this.NotifObservable = new Observable((observer) => {
+                  return  observer.next(JSON.stringify(payload));
+                });
+                */
             });
 
            
@@ -93,8 +106,8 @@ export class NotificationsService {
             // Initialize your VAPI key
           
             
-            await this.messaging.deleteToken();
-        console.log("token deleted");
+         //   await this.messaging.deleteToken();
+       // console.log("token deleted");
             await this.messaging.getToken().then(
                 (refreshedToken: string) => {
                     this.global.Token = refreshedToken;
@@ -138,7 +151,9 @@ export class NotificationsService {
     });
 }
 
-
+getObservable(): Subject<any> {
+        return this.NotifSubject;
+    }
 
 }
 

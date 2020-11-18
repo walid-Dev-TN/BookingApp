@@ -23,6 +23,7 @@ export class QrscannerPage {
   @ViewChild('fileinput', { static: false }) fileinput: ElementRef;
 
   canvasElement: any;
+  stream: any;
   videoElement: any;
   canvasContext: any;
   scanActive = false;
@@ -73,17 +74,20 @@ export class QrscannerPage {
   }
  
   reset() {
+    
     this.scanResult = null;
-    this.router.navigateByUrl('/home');
+   // this.loading.dismiss();
+   // this.videoElement.stop();
+    //this.router.navigateByUrl('/home');
   }
  
   async startScan() {
     // Not working on iOS standalone mode!
-    const stream = await navigator.mediaDevices.getUserMedia({
+    this.stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'environment' }
     });
    
-    this.videoElement.srcObject = stream;
+    this.videoElement.srcObject = this.stream;
     // Required for Safari
     this.videoElement.setAttribute('playsinline', true);
    
@@ -173,16 +177,45 @@ export class QrscannerPage {
     console.log(this.ResultData[0]);
     console.log(this.ResultData[1]);
     console.log(this.ResultData[2]);
-    if(this.ResultData[1] == 'ID Voyage:' + this.global.VoyageEnCours)
-     this.ResultData.push("1");
+    console.log(this.ResultData[3]);
+    if(this.ResultData[1] == this.global.VoyageEnCours)
+    {
+      this.ResultData.push("1");
+      var query = firebase.firestore().collection("ReservationsList").where('Client','==', this.ResultData[3]).where("Id_Voyage", "==", this.ResultData[1]);
+      
+    
+      query.get().then(snap => {
+       // this.ResNbr =  snap.size;
+        if(snap.size > 0)
+          {
+            snap.forEach(doc => {
+              let id = doc.id;
+              var db = firebase.firestore();
+db.collection("ReservationsList").doc(id).update("scanned", true );
+
+            });
+          }
+     });
+
+    }
     else
     this.ResultData.push("0");
   }
 
-
+  vidOff() {
+    //clearInterval(theDrawLoop);
+    //ExtensionData.vidStatus = 'off';
+    this.videoElement.pause();
+    this.videoElement.src = "";
+    this.stream.getTracks()[0].stop();
+    console.log("Vid off");
+    this.router.navigateByUrl('/home');
+  }
 
 
   stopScan() {
     this.scanActive = false;
+   // this.loading.dismiss();
+   // this.videoElement.stop();
   }
 }

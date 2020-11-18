@@ -7,9 +7,10 @@ import {firebase} from '@firebase/app';
 //import * as firebase from 'firebase'
 import {environment} from '../environments/environment';
 import {NotificationsService} from './service/notifications.service';
-import { SwUpdate, SwPush } from '@angular/service-worker';
+
 import { HttpClient} from '@angular/common/http';
 import {GlobalService} from './global.service';
+
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,6 @@ export class AppComponent {
     private notificationsService: NotificationsService,
     public http: HttpClient,
     public global: GlobalService
-    //updates: SwUpdate, push: SwPush
    )
    {
     console.log(this.platform);
@@ -53,6 +53,9 @@ export class AppComponent {
    }
 
   async ngOnInit() {
+
+
+
     firebase.initializeApp(environment.firebase);
     await this.notificationsService.init();
 }
@@ -71,6 +74,8 @@ export class AppComponent {
        await this.notificationsService.requestPermission();
     });
 }
+
+
 
 sideMenu()
   {

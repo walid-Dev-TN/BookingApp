@@ -23,6 +23,7 @@ export class MyModalPage implements OnInit {
  public textToCode: string;
  public myAngularxQrCode: string = null;
 
+  modalUser: string;
   modalClient: string;
   modalTitle: string;
   modalId: string;
@@ -43,6 +44,7 @@ export class MyModalPage implements OnInit {
 
   ngOnInit() {
     console.table(this.navParams);
+    this.modalUser = this.navParams.data.paramUser;
     this.modalClient = this.navParams.data.paramClient;
     this.modalId = this.navParams.data.paramID;
     this.modalDate = this.navParams.data.paramDate;
@@ -51,7 +53,7 @@ export class MyModalPage implements OnInit {
     this.type_user = this.navParams.data.paramtype_user;
     
     if(this.type_user == 3){
-    this.textToCode="Nom et Prénom:" + this.modalClient + "/ID Voyage:" + this.modalId + "/Date:" + this.modalDate;
+    this.textToCode= this.modalClient + "/" + this.modalId + "/" + this.modalDate+"/" + this.modalUser;
     this.conversionEncryptOutput = CryptoJS.AES.encrypt(this.textToCode.trim(), this.global.encPassword.trim()).toString();  
    
     this.createQRCode();

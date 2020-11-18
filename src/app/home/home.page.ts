@@ -27,6 +27,9 @@ import { MyModalPage } from '../modals/my-modal/my-modal.page';
 import {GlobalService} from '../global.service';
 import {MyInterceptorService} from '../service/MyInterceptor.service';
 
+import { SwUpdate, SwPush } from '@angular/service-worker';
+import { Events } from '@ionic/angular';
+
 const {Device } = Plugins; 
 //import { Uid } from '@ionic-native/uid/ngx';
 //import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
@@ -64,7 +67,7 @@ export class HomePage implements OnDestroy, OnInit {
   public existe: number = 0;
   public Mysnapshot: any;
   public selected_value0;
-  public selected_value_user;
+  public selected_value_user: any;
   public textnotification;
   UserName: string;
   UserAge: number;
@@ -120,6 +123,10 @@ export class HomePage implements OnDestroy, OnInit {
     private interceptor: MyInterceptorService,
     //private uid: Uid,
     //private androidPermissions: AndroidPermissions
+    private swUpdate: SwUpdate,
+    private swPush: SwPush,
+    public events: Events
+    
 
 
     ) { 
@@ -131,21 +138,26 @@ export class HomePage implements OnDestroy, OnInit {
     ngOnInit() {
 
     
-      
+      this.CodeSecret = '0';
 
 
      this.crudService.read_Users().subscribe(data => {
      
       this.Users = data.map(e => {
-        var driver: string = "";
+        var type_user: string = "";
         
         if(e.payload.doc.data()['isDriver'])
        {
-          driver = "chauffeur"; 
+          type_user = "Chauffeur"; 
        }
         else
-          driver = "Client";
-       
+        {
+        if(e.payload.doc.data()['isAdmin'])
+          type_user = "Administrateur";
+        else
+          type_user = "Passager";
+        }
+
         return {
           NomPrenom: e.payload.doc.data()['NomPrenom'], 
           email: e.payload.doc.data()['email'],
@@ -154,7 +166,7 @@ export class HomePage implements OnDestroy, OnInit {
           lng: e.payload.doc.data()['lng'],
           Tel: e.payload.doc.data()['Tel'],
           Token: e.payload.doc.data()['Token'],
-          driver: driver
+          type_user: type_user
         };
       })
       console.log(this.Users);
@@ -186,6 +198,76 @@ this.crudService.read_Drivers().subscribe(data => {
 
      firebase.auth().onAuthStateChanged(async user => {
       if (user) {
+
+    /******************************Code ajouté le 15-11-2020********* */
+    
+    if (this.swUpdate.isEnabled) {
+
+      this.swUpdate.available.subscribe(() => {
+
+          if(confirm("Nouvelle version disponible. Voulez-vous charger la nouvelle version?")) {
+
+              window.location.reload();
+          }
+      });
+    }  
+   /***************************Ajouté le 18-11-2020************************************** */ 
+
+ /* const NotifsEvent = this.notificationsService.NotifObservable.subscribe((notification) => {
+    console.log(notification);
+  })*/
+  this.notificationsService.getObservable().subscribe((data) => {
+    console.log('Notif Data received', data);
+
+    
+    let notifObj = JSON.parse(<string>(data));
+    console.log(notifObj);
+
+   this.NotifAlert(JSON.stringify(notifObj.notification.body));
+});
+/***********************Ajouté le 17-11-2020****************************************** *
+   this.swPush.messages.subscribe(
+
+    (notification: any) => {
+  
+      console.log("Notification reçue", notification);
+    
+  
+      let options = {
+  
+        body: notification.body,
+  
+        icon: "assets/icons/logo-blassa.png",
+  
+        actions: <any>notification.actions,
+  
+        data: notification.data,
+  
+        vibrate: [100, 50, 10, 20, 20]
+  
+      };
+  
+      this.showNotification(notification.title, options);
+  
+    },
+  
+  
+  
+    err => {
+  
+      console.error(err);
+  
+    }
+  
+  );
+  /**************************************************************************** */
+
+
+
+
+
+
+
         console.log("user:",user)
         // call get current location function on initializing
             this.getCurrentLocation(user.uid);
@@ -288,7 +370,7 @@ await query.get().then(async snap => {
   snap.forEach(doc => {
     this.VoyagesEncoreValides.push(doc.data()['Id_Voyage']);
   });
-  console.log("Voyages encore valides" + snap.size);
+  console.log("Nbr de voyages encore valides" + snap.size);
   //console.log("Voyages encore valides" + this.VoyagesEncoreValides.length);
 
 this.Reservations = [];
@@ -310,7 +392,7 @@ this.Reservations = [];
      if(this.ResNbr > 0 )
      {
           
-          console.log(this.Reservations);
+        //  console.log(this.Reservations);
 /**********!!!!!!!!******************Update de la destination******************!!!!!!!!**************** */
 var Id_Voyage = this.Reservations[0].Id_Voyage;
 console.log("Id_Voyage=", Id_Voyage);
@@ -406,6 +488,11 @@ else // detection du id du device
 }
     
 
+afficherModal()
+{
+this.openModal(this.Reservations, 2);
+}
+
   async openModal(Reservations, option: number) {
   
     try {
@@ -442,6 +529,7 @@ else // detection du id du device
           const modal = await this.modalController.create({
       component: MyModalPage, 
       componentProps: {
+        "paramUser": this.user,
         "paramClient": this.NomPrenom, 
         "paramID": reservations[0].Id_Voyage,
         "paramDate": Date_Depart,
@@ -470,6 +558,23 @@ else // detection du id du device
    }
 }
 
+showNotification(title: string, options: NotificationOptions) {
+
+  navigator.serviceWorker.getRegistration().then(reg => {
+
+    reg.showNotification(title, options).then(res => {
+
+      console.log("showed notification", res)
+
+    }, err => {
+
+      console.error(err)
+
+    });
+
+ });
+
+}
 
 
 
@@ -562,7 +667,29 @@ else // detection du id du device
     await alert.present();
   }
 
-  
+  async NotifAlert(MessageText) {
+    const alert = await this.alertController.create({
+     // cssClass: 'my-custom-class',
+      header: 'Notification reçu',
+      subHeader: MessageText,
+      message: '',
+      buttons: [
+        {
+            text: 'Ok',
+            handler: async (alertData) => {
+              //  this.Logout(); 
+                //console.log(alertData.codesecret);
+            }
+        }
+    ]
+
+      //buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+
   async presentAlert2(MessageText) {
     const alert = await this.alertController.create({
      // cssClass: 'my-custom-class',
@@ -924,15 +1051,15 @@ this.Reservations = [];
 
        let postData = {
         "notification": {
-        "title": "Message du Admin ",
+        "title": "Message du Admin à l'utilisateur:" + this.selected_value_user.NomPrenom,
         "body": this.textnotification,
         "icon": "assets/icons/logo-blassa.png"
         },
         //"to" : this.global.Token
-        "to" : this.selected_value_user
+        "to" : this.selected_value_user.Token
       }
     
-console.log(postData);
+//console.log(postData);
       this.http.post("https://fcm.googleapis.com/fcm/send", 
        JSON.stringify(postData) , httpOptions)
       .subscribe(data => {

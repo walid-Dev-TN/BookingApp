@@ -3,6 +3,19 @@
     <ion-title>
      QR Code Scan
     </ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="secondary">
+      <ion-button (click)="vidOff()">
+        <ion-icon slot="icon-only" name="exit"  ></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon slot="icon-only" name="search"></ion-icon>
+      </ion-button>
+     
+      
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
  
@@ -38,21 +51,21 @@
     Arreter le scan
   </ion-button>
  <ng-container *ngIf="scanResult">
-  <ion-card *ngIf="ResultData[3] == '1'" style="background: green;">
-    <ion-card-header>
+  <ion-card *ngIf="ResultData[4] == '1'" >
+    <ion-card-header style="background: chartreuse;">
       <ion-card-title>Ticket électronique valide</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
-      {{ResultData[0]}}<br>
-      {{ResultData[1]}}<br>
-      {{ResultData[2]}}
+    <ion-card-content color="light" >
+      Nom et Prénom: {{ResultData[0]}}<br>
+      ID du Voyage: {{ResultData[1]}}<br>
+      Date du Voyage: {{ResultData[2]}}
     </ion-card-content>
   </ion-card>
-  <ion-card *ngIf="ResultData[3] == '0'" style="background: red;">
-    <ion-card-header>
-      <ion-card-title>Ticket électronique non valide!</ion-card-title>
+  <ion-card *ngIf="ResultData[4] == '0'" >
+    <ion-card-header style="background: red;">
+      <ion-card-title>Attention! Ces informations ne sont pas valides</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content color="light">
       {{ scanResult }}
     </ion-card-content>
   </ion-card>
