@@ -24,7 +24,7 @@ import {GlobalService} from './global.service';
 import {NotificationsService} from './service/notifications.service';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {MyInterceptorService} from './service/MyInterceptor.service';
-
+import { DatePipe } from '@angular/common'
 
 
 
@@ -51,6 +51,7 @@ import {MyInterceptorService} from './service/MyInterceptor.service';
     AndroidPermissions,
     GlobalService,
     NotificationsService,
+    DatePipe,
     [
       { provide: HTTP_INTERCEPTORS, useClass: MyInterceptorService, multi: true }
   ],
