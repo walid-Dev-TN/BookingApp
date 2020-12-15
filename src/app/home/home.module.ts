@@ -8,6 +8,7 @@ import { HomePage } from './home.page';
 
 
 import { AgmCoreModule } from "@agm/core";
+import { AgmDirectionModule } from 'agm-direction';
 
 import { environment } from "../../environments/environment";
 
@@ -29,8 +30,10 @@ import { environment } from "../../environments/environment";
       }
     ]),
     AgmCoreModule.forRoot({
-      apiKey: environment.googleMapsAPIKey
-    })
+      apiKey: environment.googleMapsAPIKey,
+      libraries: ["places", "geometry"]
+    }),
+    AgmDirectionModule
   ],
   declarations: [HomePage]
 })

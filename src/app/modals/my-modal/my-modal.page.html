@@ -24,6 +24,14 @@
     </ion-row>-->
     <ion-row>
       <ion-col text-center>
+        Départ : {{source}}
+      </ion-col>
+      <ion-col text-center>
+        Arrivée : {{direction}}
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
         Date prévue du voyage : {{modalDate}}
       </ion-col>
     </ion-row>
@@ -46,7 +54,7 @@
          
         </ion-col>
     </ion-row>
-    <ion-row>
+    <ion-row *ngIf="this.navParams.data.paramConfirme">
       <ion-col text-center>
         <div class="center" *ngIf="myAngularxQrCode">
           <qrcode [qrdata]="myAngularxQrCode" [size]="250" [level]="'M'"></qrcode>

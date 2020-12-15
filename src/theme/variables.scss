@@ -87,18 +87,45 @@
 }
 
 agm-map {
-  height: 80% !important;
-  width: 100%;  
-  position:relative;
+  height: 80vh !important;
+  width: 100vw;  
+  position:absolute;
   top:0%;
+  left:0%;
 }
 
 
 ion-header{
-  height: 10vh !important;
-  width: 100%;  /* This is really important*/
+  padding: 0 !important;
+  margin: 0 !important;
+  //height: 10vh !important;
+  width: 100%; 
+ --background: transparent; /* This is really important*/
 } 
 
+
+/* Transparent standard */
+ion-toolbar {
+  --background-color: transparent;
+   --ion-color-base: transparent !important;
+ 
+}
+
+/* Show background if class is active */
+.show-background {
+  border-style: none;
+  background: var(--ion-color-primary);
+}
+
+/* Remove bottom border on md */
+.header-md::after {
+  background-image: none;
+}
+
+/* Remove bottom border on ios */
+.header-ios ion-toolbar:last-child {
+  --border-width: 0;
+}
 
 span{
   height: 80vh !important;

@@ -20,11 +20,14 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MyModalPageModule } from './modals/my-modal/my-modal.module';
 import { QRScanner} from '@ionic-native/qr-scanner/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+
 import {GlobalService} from './global.service';
 import {NotificationsService} from './service/notifications.service';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {MyInterceptorService} from './service/MyInterceptor.service';
-import { DatePipe } from '@angular/common'
+import { DatePipe } from '@angular/common';
+//import { AgmCoreModule } from '@agm/core';  
 
 
 
@@ -43,15 +46,18 @@ import { DatePipe } from '@angular/common'
     
     ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })
     
+    
   ],
   providers: [
     StatusBar,
     SplashScreen,
     QRScanner,
     AndroidPermissions,
+    Geolocation,
     GlobalService,
     NotificationsService,
     DatePipe,
+    
     [
       { provide: HTTP_INTERCEPTORS, useClass: MyInterceptorService, multi: true }
   ],

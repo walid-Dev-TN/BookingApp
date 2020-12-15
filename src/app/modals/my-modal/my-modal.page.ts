@@ -29,7 +29,8 @@ export class MyModalPage implements OnInit {
   modalId: string;
   modalDate: string;
   chauffeur: string;
-  
+  source: string;
+  direction: string;
   type_user: number;
   data: any;
   conversionEncryptOutput: string;
@@ -51,9 +52,10 @@ export class MyModalPage implements OnInit {
     this.modalTitle = this.navParams.data.paramTitle;
     this.chauffeur = this.navParams.data.paramChauffeur;
     this.type_user = this.navParams.data.paramtype_user;
-    
+    this.source = this.navParams.data.paramSource;
+    this.direction = this.navParams.data.paramDir;
     if(this.type_user == 3){
-    this.textToCode= this.modalClient + "/" + this.modalId + "/" + this.modalDate+"/" + this.modalUser;
+    this.textToCode= this.modalClient + ":" + this.modalId + ":" + this.modalDate+":" + this.modalUser;
     this.conversionEncryptOutput = CryptoJS.AES.encrypt(this.textToCode.trim(), this.global.encPassword.trim()).toString();  
    
     this.createQRCode();

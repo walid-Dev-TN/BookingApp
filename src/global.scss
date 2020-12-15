@@ -37,5 +37,21 @@
 ion-app.cameraView, ion-app.cameraView ion-content, ion-app.cameraView .nav-decor {
   --background: transparent none !important;
   }
+  
+.visible{
+  visibility: visible;
+}
+
+.hidden{
+  visibility: hidden;
+}
+
+.no-scroll {
+  top: 0%;
+ // --overflow: hidden;
+ // --background: linear-gradient(to bottom, rgb(218,26,26), white);;
+ 
+}
+
 
 

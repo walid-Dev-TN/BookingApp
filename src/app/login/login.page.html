@@ -8,17 +8,17 @@
   <ion-radio-group [(ngModel)]="selection">
     <ion-list-header>
       <ion-label>
-        Méthode d'authentification
+      <h1>Méthode d'authentification</h1>  
       </ion-label>
     </ion-list-header>
 
     <ion-item>
-      <ion-label>Numéro du téléphone</ion-label>
+      <ion-label>Votre numéro du téléphone</ion-label>
       <ion-radio value="1"></ion-radio>
     </ion-item>
 
     <ion-item>
-      <ion-label>Email & mot de passe</ion-label>
+      <ion-label>Votre email & mot de passe</ion-label>
       <ion-radio value="2"></ion-radio>
     </ion-item>
 
@@ -55,7 +55,7 @@ Connexion par numéro de téléphone et Captcha. En cours de construction
   </ion-item>
 
   <ion-item>
-    <ion-label position="stacked">Password</ion-label>
+    <ion-label position="stacked">Mot de passe</ion-label>
     <ion-input
       formControlName="password"
       type="password"

@@ -84,7 +84,15 @@ export class QrscannerPage {
   async startScan() {
     // Not working on iOS standalone mode!
     this.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
+      audio: false,
+      video: {
+        
+        facingMode: {
+          //Use the back camera
+                  ideal: "environment"
+              }
+              
+      }
     });
    
     this.videoElement.srcObject = this.stream;
@@ -173,7 +181,7 @@ export class QrscannerPage {
   TraitementResults( Resultdata: string){
 
     var conversionDecryptOutput = CryptoJS.AES.decrypt(Resultdata.trim(), this.global.encPassword.trim()).toString(CryptoJS.enc.Utf8);  
-    this.ResultData = conversionDecryptOutput.split('/');
+    this.ResultData = conversionDecryptOutput.split(':');
     console.log(this.ResultData[0]);
     console.log(this.ResultData[1]);
     console.log(this.ResultData[2]);

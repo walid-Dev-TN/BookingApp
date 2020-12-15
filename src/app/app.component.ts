@@ -10,7 +10,9 @@ import {NotificationsService} from './service/notifications.service';
 
 import { HttpClient} from '@angular/common/http';
 import {GlobalService} from './global.service';
-
+import { Router } from '@angular/router';
+import { Events } from '@ionic/angular';
+import { AuthService } from './service/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -27,8 +29,11 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private notificationsService: NotificationsService,
+    private authService: AuthService,
     public http: HttpClient,
-    public global: GlobalService
+    public global: GlobalService,
+    private router: Router,
+    public events: Events
    )
    {
     console.log(this.platform);
@@ -82,7 +87,17 @@ sideMenu()
     this.navigate =
     [
       {
-        title : "Home",
+        title : "Accueil",
+        url   : "/home",
+        icon  : "home"
+      },
+      {
+        title : "Espace Louage",
+        url   : "/home",
+        icon  : "home"
+      },
+      {
+        title : "Espace Taxi",
         url   : "/home",
         icon  : "home"
       },
@@ -96,7 +111,39 @@ sideMenu()
         url   : "/contacts",
         icon  : "contacts"
       },
+      {
+        title : "Se déconnecter",
+        url   : "/login",
+        icon  : "exit"
+      },
     ]
   }
+
+  naviguer(event)
+  {
+    if(event.title == "Espace Louage")
+      this.global.directshow = false;
+    if(event.title == "Espace Taxi")
+      this.global.directshow = true;
+      if(event.title == "Se déconnecter")
+      this.Logout();
+     
+    this.router.navigateByUrl('/'+ event.url);  
+      
+  }
+
+  async Logout(): Promise<void>  {
+    this.authService.logoutUser().then(
+      () => {
+      //this.loading.dismiss().then(() => {
+        //this.unsubscribe();
+        this.router.navigate(['/login']);
+      //  });
+      });
+     // this.loading = await this.loadingCtrl.create();
+     //   await this.loading.present();
+    }
+
+
 
 }

@@ -1,7 +1,8 @@
 {
   "name": "Ionic4FirestoreCRUD",
   "integrations": {
-    "cordova": {}
+    "cordova": {},
+    "capacitor": {}
   },
   "type": "angular"
 }

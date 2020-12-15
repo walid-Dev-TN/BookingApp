@@ -1,51 +1,46 @@
-<ion-header [translucent]="true">
+
   
-  <ion-toolbar color="danger">
-    <ion-title>
-    Page Principale
-    </ion-title>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-buttons slot="secondary">
-      <ion-button (click)="Logout()">
-        <ion-icon slot="icon-only" name="exit"  ></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon slot="icon-only" name="search"></ion-icon>
-      </ion-button>
-      <ion-button *ngIf="isDriver" routerLink="/qrscanner">
-        <ion-icon slot="icon-only" name="qr-scanner"></ion-icon>
-      </ion-button>
-      
-    </ion-buttons>
-  </ion-toolbar>
-  <span style="font-size: smaller; color: white; background:#f04141; width: 100%;">Bienvenue {{NomPrenom}}. Aujourd'hui:{{todayDate | date: 'dd/MM/yyyy'}}</span>
-  
-</ion-header>
+   <ion-content class="no-scroll" > 
 
-
- 
-   <ion-content class="ion-padding"> 
-
+    <ion-fab vertical="top" horizontal="start" slot="fixed">  
+      <ion-fab-button size="small" color="light" >
+        <ion-menu-button></ion-menu-button>
+      </ion-fab-button>
+    </ion-fab>
+    <!--
+    <ion-fab vertical="top" horizontal="end" slot="fixed"> 
+        <ion-fab-button color="danger" size="small"  (click)="Logout()">
+          <ion-icon name="exit"  ></ion-icon>
+        </ion-fab-button>
+    </ion-fab> 
+  --> 
+    <ion-fab vertical="bottom" horizontal="end" size="small"  slot="fixed">  
+        <ion-fab-button *ngIf="isDriver" routerLink="/qrscanner">
+          <ion-icon name="qr-scanner"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
    
-   
-        
+  <ng-container *ngIf="CodeSecret === '123'" >
+    <div style="position:absolute; top: 0vh; left: 4vh; color: White; background:transparent; z-index: 200; font-size: small; font-weight: bolder; left: 1%">Bienvenue {{NomPrenom}} Ajourd'hui le {{todayDate | date: 'dd/MM/yyyy'}}</div>
     
 
-<span *ngIf="isDriver && !isAdmin && CodeSecret === '123'" vertical="top">
+  </ng-container> 
   
-
-        <ion-textarea style="font-size: small;">Le prochain voyage numéro: {{VoyageEnCours}} <br/> Prévu le: <br/>{{DateVoyageEnCours}} </ion-textarea>
-     
-        <ion-textarea  style="font-size: small;">Jusqu'au maintenant vous avez:<br/> {{ResNbr}} réservations </ion-textarea>
-     
     
-            
-                <ion-card *ngFor="let resv of Reservations; let i = index" style="width: 100%">
+
+<div *ngIf="isDriver && !isAdmin && CodeSecret === '123'" vertical="top" style="position:absolute; left: 1%;">
+  <div style="height: 14vh; background: transparent;" > </div>
+
+
+  <div style="font-size: small;color: black;">Le prochain voyage numéro: {{VoyageEnCours}} <br/>Prévu le: {{DateVoyageEnCours}} <br/>Départ: {{SourceVoyageEnCours}} Arrivée {{DirVoyageEnCours}}<br/>Jusqu'au maintenant vous avez: {{ResNbr}} réservations </div> 
+
+
+     
+          
+                <ion-card *ngFor="let resv of Reservations; let i = index" style="width: 100%; background: #ee7171;">
                      <ion-card-header>
-                       <ion-card-title style="font-size: small;">Reservation n°{{i+1}}</ion-card-title>
-                       <ion-card-subtitle> Au nom de:{{resv.NomPrenom}} Tel:{{resv.Tel}} </ion-card-subtitle>
+                       <ion-card-title style="font-size: small;color: white;">Reservation n°{{i+1}}</ion-card-title>
+                       <ion-card-subtitle style="font-size: small;color: white;"> Au nom de:{{resv.NomPrenom}} Tel:{{resv.Tel}} </ion-card-subtitle>
                      </ion-card-header>
                      <ion-card-content>
                       <ng-container *ngIf="!resv.Confirme" > 
@@ -53,8 +48,8 @@
                            <ion-icon size="small" slot="icon-only" name="checkmark"></ion-icon>
                          </ion-button>
                       </ng-container>
-                      <ng-container *ngIf="resv.Confirme" > 
-                        Confirmée
+                      <ng-container *ngIf="resv.Confirme"  > 
+                       <span style="font-size: small;color: black; font-weight: bold;">Confirmée</span> 
                       </ng-container>
                          <ion-button shape="round" color="danger" size="small" (click)="RemoveRes(resv.Client)">
                            <ion-icon size="small" slot="icon-only" name="trash"></ion-icon>
@@ -64,30 +59,80 @@
   
           
     
-              <ion-item>
-                <ion-label>Définir un nouveau voyage:</ion-label>
-              </ion-item>
-              <ion-item>
-                
-                <ion-label style="font-size: medium;" color="primary">Votre direction</ion-label>
-                <ion-select style="font-size: medium;" interface="popover" [(ngModel)]="Destination" (ionChange)="RemisedateAzero()">
-                  <ion-select-option value="KT">Tunis</ion-select-option>
-                  <ion-select-option value="TK">Kébili</ion-select-option>
-                </ion-select>
-
-                   
-                  <ion-datetime style="font-size: medium;" placeholder="Date du voyage" (ionChange)="dateChanged()" [(ngModel)]="DateVoyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
-                      </ion-datetime>
-                  </ion-item>
-                  
+             
           
-  </span>
+ </div>
 
 <ng-container *ngIf="!isDriver && !isAdmin && CodeSecret === '123'" vertical="top">
     
-  <agm-map [zoom]="8" [latitude]="latme" [longitude]="lngme"  #AgmMap  [styles]= "styles">
+<ng-container *ngIf="!global.directshow">
+  <!--<iframe width='100%' height='100%' id='mapcanvas' src='https://maps.google.com/maps?q=Tunis,%20TUNISIA&amp;t=&amp;z=11&amp;ie=UTF8&amp;iwloc=&amp;output=embed' frameborder='0' scrolling='no' marginheight='0' marginwidth='0'></iframe> -->
+
+  
+
+  <agm-map [zoom]="zoom" [latitude]="latme" [longitude]="lngme" Type="ROAD"  #AgmMap  [styles]= "styles">
+    
+    <agm-marker [latitude]="latme" [longitude]="lngme" [iconUrl]="iconurl"></agm-marker>
+
+    <ng-container *ngFor="let m of markers; let i = index">
+
+      <agm-marker *ngIf="m.isShown" (markerClick)="clickedMarker(m.label, i)" [latitude]="m.lat" [longitude]="m.lng" [iconUrl]="m.icon" >
+
+          <agm-info-window>
+              <div>{{m.description}}</div>
+          </agm-info-window>
+
+      </agm-marker>
+
+    </ng-container>
+   <!--- <agm-direction [origin]="origin" [destination]="destination" >
+    </agm-direction> --->
+    <agm-circle [latitude]="radiusLat" [longitude]="radiusLong" [radius]="radius" [fillColor]="'white'"
+     [circleDraggable]="false" [editable]="false" (dragEnd)="radiusDragEnd($event)"
+     (radiusChange)="event('radiusChange',$event)">
+    </agm-circle>
+  </agm-map>
+  
+
+
+
+
+  <ion-list *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0" style="z-index: 200; background: transparent;">
+    
+    <ng-container *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0">
+      <ion-list-header>
+        Liste des Voyages disponibles:
+      </ion-list-header>
+  
+    </ng-container>
+    <ng-container *ngIf="VoyagesEncoreValidesAllInfos == undefined && ResNbr == 0">
+      <ion-list-header>
+        Veuillez choisir votre destination
+      </ion-list-header>
+  
+    </ng-container>    
+    <ion-item *ngFor="let item of VoyagesEncoreValidesAllInfos">
+      <ion-avatar slot="start">
+        <img src="assets/icons/User-Profile.png">
+      </ion-avatar>
+      <ion-label>
+        <h2>Le Driver:{{item.Driver}}</h2>
+        <h3>Date du voyage: {{item.Date_voyage}}</h3>
+        <p>Nombre de réservation: {{item.NbrReservations}}</p>
+      </ion-label>
+      <ion-button  shape="round" color="secondary" size="small" (click)="onVoyageSelected(item, false)">
+        <ion-icon size="small" slot="icon" name="checkmark">Réserver un place</ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+</ng-container>
+
+<ng-container *ngIf="global.directshow">
+
+ 
+  <agm-map [zoom]="14" [latitude]="latme" [longitude]="lngme" Type="ROAD"  #AgmMap  [styles]= "styles">
     <agm-marker *ngFor="let position of Drivers; let i = index" [latitude]="position.lat" [longitude]="position.lng" [label]="position.Dir"
-       (markerClick)="onMarkerClick(position)"  >
+       (markerClick)="onMarkerClick(position, true)"  >
        <agm-info-window  #infowindow [isOpen]="position.lat == latme">
 <!------------------------------------------------>
 
@@ -125,29 +170,14 @@
 ------------------------------------------------->        
       </agm-info-window>
     </agm-marker>
+    <agm-circle [latitude]="latme0" [longitude]="lngme0" 
+    [radius]="500"
+    [fillColor]="'red'"
+    [circleDraggable]="true"
+    [editable]="false">
+</agm-circle>
   </agm-map>
-  
-  <span *ngIf="ResNbr == 0" >
-  
-                <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" color="primary">Choisir Votre direction</ion-label>
-                <ion-select [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()">
-                  <ion-select-option value="KT">Tunis</ion-select-option>
-                  <ion-select-option value="TK">Kébili</ion-select-option>
-                </ion-select>
-                
-                <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" color="primary">Choisir entre les dates encore disponibles</ion-label>
-                <ion-select interface="popover" #SelectDate [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
-                  <ion-select-option *ngFor="let date_voyage of DatesVoyages" [value]="date_voyage.email">
-                    <span style="font-size: 12px">  {{date_voyage.Date_Depart}}</span>
-                  </ion-select-option>
-                </ion-select>
-  </span>  
-    <span *ngIf="ResNbr > 0">
-      <ion-label style="font-size: medium;" >Votre direction:{{NomDirection}}</ion-label><br/>
-      <ion-label style="font-size: medium;" >Date prévu du voyage:{{selected_value0}}</ion-label>
-    </span>     
-                 
-               
+</ng-container>
    
  </ng-container>
 
@@ -237,8 +267,89 @@
 
 
 </ion-content>
-<ion-footer style="width: 100%;">
-  <span style="width: 100%;" *ngIf="ResNbr > 0 && !isDriver && !isAdmin && CodeSecret === '123'">
-    <ion-button style="width: 100%;" (click)="afficherModal()" color="danger" fill="outline">Afficher le ticket éléctronique</ion-button>
-    </span>
+
+<ion-footer style="width: 100%; height: 20vh;">
+
+  <ng-container *ngIf="ResNbr == 0 && !isDriver && !isAdmin && CodeSecret === '123' && !global.directshow" >
+     
+    <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }">Quelle est votre station de départ?</ion-label>
+    <ion-select [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" interface="popover" [(ngModel)]="Source" (ionChange)="SelectDir()" >
+      <ion-select-option *ngFor="let src_voyage of SourcesList" [value]="src_voyage.Id_Destination">
+        <span style="font-size: 12px">  {{src_voyage.Desc}}</span>
+      </ion-select-option>
+    </ion-select>
+
+
+
+    <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }">Quelle est votre destination?</ion-label>
+    <ion-select [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()" >
+      <ion-select-option *ngFor="let dir_voyage of DestinationsList" [value]="dir_voyage.Id_Destination">
+        <span style="font-size: 12px">  {{dir_voyage.NomDestination}}</span>
+      </ion-select-option>
+    </ion-select>
+  </ng-container> 
+  
+  
+  <ng-container *ngIf="ResNbr == 0 && !isDriver && !isAdmin && CodeSecret === '123' && global.directshow" >
+  
+
+    <input #search [ngStyle]="{'visibility':ResNbr === 0 && global.directshow ? 'visible' : 'hidden' }" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" class="form-control">
+    <ion-button (click)= "findAdress()">Chercher</ion-button>
+
+
+    <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }">Choisir Votre direction</ion-label>
+    <ion-select [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" interface="popover" [(ngModel)]="Direction" (ionChange)="DirChange()" >
+      <ion-select-option value="KT">Tunis</ion-select-option>
+      <ion-select-option value="TK">Kébili</ion-select-option>
+    </ion-select>
+    
+  </ng-container> 
+
+  
+  <ng-container *ngIf="ResNbr == 0 && !isDriver && !isAdmin && CodeSecret === '123' && global.directshow">
+    <ion-label [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }">Choisir entre les dates encore disponibles</ion-label>
+    <ion-select interface="popover" #SelectDate [ngStyle]="{'visibility':ResNbr === 0 ? 'visible' : 'hidden' }" [(ngModel)]="selected_value0" (ionChange)="latlngChange(selected_value0)">
+      <ion-select-option *ngFor="let date_voyage of DatesVoyages" [value]="date_voyage.email">
+        <span style="font-size: 12px">  {{date_voyage.Date_Depart}}</span>
+      </ion-select-option>
+    </ion-select>
+  </ng-container>
+
+
+<ng-container *ngIf="ResNbr > 0 && !isDriver && !isAdmin && CodeSecret === '123' ">
+  <ion-list style="height:80%">
+    <ion-item><h4>Vous partez de:</h4>{{NomSource}}<h4> Destination:</h4> {{NomDirection}}</ion-item>
+    <ion-item><h4>Date prévu du voyage:</h4> {{selected_value0}}</ion-item>
+  </ion-list>
+  
+</ng-container>     
+     
+   
+
+  <ng-container *ngIf="ResNbr > 0 && !isDriver && !isAdmin && CodeSecret === '123'">
+    <ion-button style="width: 100%; height: 20%;" (click)="afficherModal()" color="danger" fill="outline">Afficher le ticket éléctronique</ion-button>
+  </ng-container>
+  <ng-container *ngIf="isDriver && !isAdmin">
+    <ion-item>
+      <ion-label><h1>Définir un nouveau voyage</h1></ion-label>
+    </ion-item>
+    <ion-item>
+      
+      <ion-label style="font-size: medium;">Départ:</ion-label>
+      <ion-select style="font-size: medium;" interface="popover" [(ngModel)]="Source" (ionChange)="SelectDir()">
+        <ion-select-option *ngFor="let src_voyage of SourcesList" [value]="src_voyage.Id_Destination">
+          <span style="font-size: 12px">  {{src_voyage.NomDestination}}</span>
+        </ion-select-option>
+      </ion-select>
+      <ion-label style="font-size: medium;">Arrivée:</ion-label>
+      <ion-select style="font-size: medium;" interface="popover" [(ngModel)]="Destination" (ionChange)="RemisedateAzero()">
+        <ion-select-option *ngFor="let dir_voyage of DestinationsList" [value]="dir_voyage.Id_Destination">
+          <span style="font-size: 12px">  {{dir_voyage.NomDestination}}</span>
+        </ion-select-option>
+      </ion-select>
+        <ion-datetime style="font-size: medium;" placeholder="Date du voyage" (ionChange)="dateChanged()" [(ngModel)]="DateVoyage" displayFormat="DD-MM-YYYY" pickerFormat="DD MM YYYY">
+            </ion-datetime>
+        </ion-item>
+   </ng-container>       
+  
 </ion-footer>
