@@ -22,7 +22,7 @@ export class GlobalService {
 
   public directshow: boolean = false;
 
-  public encPassword: string = "LinaDali2020*NadiaWalid2020*";
+  public encPassword: string = "**";
  // public networkStatus: any;
  // public networkListener: PluginListenerHandle;
   
