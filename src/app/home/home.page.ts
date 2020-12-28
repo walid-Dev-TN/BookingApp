@@ -68,6 +68,9 @@ export class HomePage implements OnDestroy, OnInit, AfterViewInit {
 
   @ViewChild('search', {static: false}) searchElementRef: ElementRef;
 
+  @ViewChild('AgmMap', {static: false}) AgmMap: ElementRef;
+  public map;
+
   styles: Array<any> = [
     {
         "featureType": "landscape.natural",
@@ -213,6 +216,7 @@ export class HomePage implements OnDestroy, OnInit, AfterViewInit {
   public isClient = false;
   public Reservations: Array<any>;
   public ResNbr: number;
+  public Id_VoyageSuivi; number;
   public Direction: string;
   public DestinationsList: Array<any>;
   public SourcesList: Array<any>;
@@ -277,6 +281,8 @@ export class HomePage implements OnDestroy, OnInit, AfterViewInit {
       this.DatesList.nativeElement.value = "Dates disponibles";
       if(this.global.directshow)
           this.findAdress();
+      if(this.AgmMap.nativeElement != undefined)    
+      this.map = this.AgmMap.nativeElement;
     }
 
     showHideMarkers(){
@@ -290,12 +296,33 @@ export class HomePage implements OnDestroy, OnInit, AfterViewInit {
       this.radiusLat = $event.coords.lat;
       this.radiusLong = $event.coords.lng;
       this.showHideMarkers();
+
+      //let radiuslat: number;
+      //let radiuslong: number;
+           
+      //      this.markers.forEach(m => {
+      //        if(m.isShown)
+      //        {
+      //          radiuslat = m.lat;
+      //          console.log('radiulat', this.radiusLat);
+      //          radiuslong = m.lng;
+      //          console.log('radiuslong', this.radiusLong);
+      //        }
+
+      //      })
+      //      this.latme = (this.latme0 + radiuslat) / 2;
+      //      this.lngme = (this.lngme0 + radiuslong) / 2;
+
+
+
     }
   
     event(type,$event) {
       console.log(type,$event);
       this.radius = $event;
       this.showHideMarkers();
+
+      
     }
 
     clickedMarker(label: string, index: number) {
@@ -780,11 +807,12 @@ await firebase
           .then(resp => {
 // this.ResNbr =  snap.size;
 this.Direction = resp.data().destination;
-if(this.Direction == "TK")
-            this.NomDirection = "Tunis - Kébili";
-if(this.Direction == "KT")            
-            this.NomDirection = "Kébili - Tunis";
-this.selected_value0 = resp.data().Date_voyage;
+//if(this.Direction == "TK")
+          //  this.NomDirection = "Tunis - Kébili";
+//if(this.Direction == "KT")            
+          //  this.NomDirection = "Kébili - Tunis";
+this.selected_value0 = this.datepipe.transform( resp.data().Date_voyage, 'dd/MM/yyyy  hh:mm');
+
 
 
 //var db = firebase.firestore();
@@ -962,6 +990,20 @@ async openModal(Reservations, option: number) {
           else
           type_user=3;
    
+/*********************Nombre de places listner********************************** */
+
+this.unsubscribe = firebase.firestore().collection("VoyagesList").doc(this.Reservations[0].Id_Voyage)
+        .onSnapshot(Snapshot => {
+        
+          this.Id_VoyageSuivi = Snapshot.data().NbrReservations;
+        });    
+         
+  
+
+
+
+/**************************************************** */
+
       var query = await firebase.firestore().collection("VoyagesList").doc(this.Reservations[0].Id_Voyage)
       .get()
       .then(async snapshot => {
@@ -1004,7 +1046,7 @@ async openModal(Reservations, option: number) {
         "paramUser": this.user,
         "paramClient": this.NomPrenom, 
         "paramID": this.Reservations[0].Id_Voyage,
-        "paramDate": Date_Depart,
+        "paramDate": this.datepipe.transform( Date_Depart, 'dd/MM/yyyy  hh:mm'),
         "paramSource": Source,
         "paramDir": Direction,
         "paramChauffeur": reservations[0].Driver,
@@ -1182,6 +1224,15 @@ clearWatch() {
             if(google.maps.geometry.spherical.computeDistanceBetween(from,to) <= this.radius){ 
                 isShown = true;
                 this.SourcesList.push(doc.data());
+
+               // this.latme = ( this.latme + doc.data()['lat'] ) / 2 ;
+                //this.latme = doc.data()['lat'];
+               // console.log('Lat moyenne' , this.latme);
+                
+             //   this.lngme = (this.lngme + doc.data()['lng'] ) / 2 ;
+               // this.lngme = doc.data()['lng'];
+            //    console.log('Lng moyenne' , this.lngme);
+                
             }
             else
                 isShown = false;
@@ -1362,7 +1413,7 @@ clearWatch() {
                            db.collection("userProfile").doc(this.userId).update("UUID", this.info ).then(() => {
                           this.UUID = this.info;
                           //this.afficherUserInfos();
-                          if(!this.isDriver && !this.isAdmin)
+                          if(!this.isDriver && !this.isAdmin  && this.ResNbr > 0)
                             this.openModal(this.Reservations, 1);
                           });
 
@@ -1391,7 +1442,7 @@ clearWatch() {
     const alert = await this.alertController.create({
      // cssClass: 'my-custom-class',
       header: 'Alerte',
-      subHeader: 'Vous confirmer la date du voyage?' + this.datepipe.transform( new Date(this.DateVoyage), 'dd/MM/yyyy'),
+      subHeader: 'Vous confirmer la date du voyage?' + this.datepipe.transform( new Date(this.DateVoyage), 'medium'),
       message: '',
       
       buttons: [
@@ -1782,6 +1833,7 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
         record['Driver']= this.selectedUsermail;
         record['Id_Voyage']= this.VoyageEnCours;
         record['Confirme']=false;
+        record['Date_Reservation']= this.datepipe.transform( new Date(Date.now()), 'medium');
        // record['NbrReservations'] = this.NbrReservations + 1;
       this.firestore.collection('ReservationsList').add(record).then(async resp => {
 
@@ -1793,25 +1845,49 @@ await this.firestore.collection('ReservationsList', x => x.where('Client','==',t
              // console.log(resp);
             // console.log("Reservation faite avec succès!");
             /*************************Réservations en cours************************************* */
-            if(this.Direction == "TK")
-            this.NomDirection = "Tunis - Kébili";
-if(this.Direction == "KT")            
-            this.NomDirection = "Kébili - Tunis";
+           // if(this.Direction == "TK")
+           // this.NomDirection = "Tunis - Kébili";
+//if(this.Direction == "KT")            
+           // this.NomDirection = "Kébili - Tunis";
 
-this.selected_value0 = this.SelectedUserDateDepart;
+this.selected_value0 = this.datepipe.transform( this.SelectedUserDateDepart, 'dd/MM/yyyy  hh:mm');
+
 
 //this.VoyagesEncoreValides = [];
-//var query = firebase.firestore().collection("userProfile").where('isDriver','==', true);
-
- //await query.get().then(async snap => {
+let lat: number = 0;
+let lng: number = 0;
+await db.collection("VoyagesList").doc(`${this.VoyageEnCours}`).get().then(async snap => {
+  var query20 = await firebase.firestore().collection("DestinationsList").where('Id_Destination', '==', snap.data().Source);
+  query20.get().then( async querysnap => {
+  await querysnap.forEach(doc => {
+      lat = doc.data()['lat'];
+      console.log(lat);
+      lng = doc.data()['lng'];
+      console.log(lng);
+   })
   
- // snap.forEach(doc => {
+   console.log('ancienne latitude', this.latme);
+   this.latme = lat;
+   console.log('nouvelle latitude', this.latme);
+   
+   console.log('ancienne longitude', this.lngme);
+   this.lngme = lng;
+   console.log('nouvelle longitude', this.lngme);
+   this.zoom = 14;
+  });
+  
+
+
+});
+
 //    if(doc.data()['Date_Depart'] >= this.datepipe.transform( new Date(Date.now()), 'dd/MM/yyyy'))
 //    this.VoyagesEncoreValides.push(doc.data()['Id_Voyage']);
  // });
   //console.log("Voyages encore valides" + snap.size);
   //console.log("Voyages encore valides" + this.VoyagesEncoreValides.length);
 //  this.ResNbr = 0;
+ });
+
 this.Reservations = [];
         var query = firebase.firestore().collection("ReservationsList").where('Client','==', this.user).where('Id_Voyage','==', this.VoyageEnCours);
         //var query2 = query.where('Dir','==', this.Direction);
@@ -1829,14 +1905,24 @@ this.Reservations = [];
         });
 
           if(this.ResNbr > 0 && this.CodeSecret == '123' && this.Reservations != undefined)
-          this.openModal(this.Reservations, 2);
+          { 
+            
+
+            
+          //  this.map.panTo(new google.maps.LatLng(radiuslat,radiuslong));
+          // this.latme = radiuslat;
+          // this.lngme = radiuslong;
+         //  this.zoom = 12;
+            setTimeout(() => { this.openModal(this.Reservations, 2) }, 3000);
+            //this.openModal(this.Reservations, 2);
+          }
 
      
 /************************************************************************************ */       
 
 
 
-           });
+          
       })
         .catch(error => {
           console.log(error);
@@ -2002,6 +2088,18 @@ this.Reservations = [];
 /**************************************************************** */
   async SelectDir()
   {
+
+    //var query0 = firebase.firestore().collection("DestinationsList").where('Id_Destination','==', this.Source);
+  
+    // await query0.get().then(async snap => {
+    //  snap.forEach(async doc => {
+    //    this.latme = doc.data().lat;
+    //    this.lngme = doc.data().lng;
+    //  })
+     //   this.zoom = 12;
+    // });
+
+
     this.DestinationsList = [];
     var query = firebase.firestore().collection("DestinationsList").where('Id_Destination','!=', this.Source);
   
@@ -2064,7 +2162,7 @@ this.Reservations = [];
                     .firestore()
                     .doc(`/VoyagesList/${Id_Voyage}`)
                     .get()
-                    .then(resp => {
+                    .then(async resp => {
                       if(resp.data() != undefined)
                       {
                         console.log('Direction', this.Direction);
@@ -2075,8 +2173,29 @@ this.Reservations = [];
                        
                         if(resp.data().destination == this.Direction && Date.parse(resp.data().Date_voyage) >= Date.parse(this.datepipe.transform( new Date(), 'yyyy-MM-dd  h:mm:ss')))
                           {
-                             this.VoyagesEncoreValidesAllInfos.push(resp.data());
-                             console.log('pushed!');
+                            var query = firebase.firestore().collection("userProfile").where('email','==', resp.data().Driver).where('isDriver','==', true);
+                            query.get().then(snap => {
+                              snap.forEach(doc2 => {
+                                
+                                let item = {
+                                  Driver: resp.data().Driver,
+                                  Nom: doc2.data()['NomPrenom'],
+                                  Tel: doc2.data()['Tel'],
+                                  Date_voyage: resp.data().Date_voyage,
+                                  NbrReservations: resp.data().NbrReservations,
+                                  destination: resp.data().destination
+                                }
+                                  this.VoyagesEncoreValidesAllInfos.push(item);
+                                 console.log('pushed!');
+                              })
+                            });
+                          }
+                          else{
+                            const alert = await this.toastController.create({
+                              duration: 4000,
+                              message: 'En ce moment Il n\' ya pas de voyages pour cette direction '
+                            })
+                            alert.present();
                           }
                          
                       }

@@ -19,6 +19,46 @@
           <ion-icon name="qr-scanner"></ion-icon>
         </ion-fab-button>
     </ion-fab>
+
+    <ion-fab  *ngIf="!isDriver && !isAdmin" vertical="bottom" horizontal="end" size="small"  slot="fixed">  
+      
+        <ng-container *ngIf="ResNbr < 8 && ResNbr > 0  ">
+          <span style="background: red; color: white;">Nbr Places:{{Id_VoyageSuivi}}/8</span>
+        </ng-container>
+        <ng-container *ngIf="ResNbr == 8 " >
+          <span style="background: green; ; color: white;">{{Id_VoyageSuivi}} places atteintes</span>
+        </ng-container>
+     
+  </ion-fab>
+
+    
+    
+
+  <agm-map [zoom]="zoom" [latitude]="latme" [longitude]="lngme" Type="ROAD"  #AgmMap  [styles]= "styles">
+    
+    <agm-marker [latitude]="latme0" [longitude]="lngme0" [iconUrl]="iconurl"></agm-marker>
+    <ng-container *ngIf="!isAdmin && CodeSecret === '123'">
+    <ng-container *ngFor="let m of markers; let i = index">
+
+      <agm-marker *ngIf="m.isShown" (markerClick)="clickedMarker(m.label, i)" [latitude]="m.lat" [longitude]="m.lng" [iconUrl]="m.icon" >
+
+          <agm-info-window>
+              <div>{{m.description}}</div>
+          </agm-info-window>
+
+      </agm-marker>
+
+    </ng-container>
+   <!--- <agm-direction [origin]="origin" [destination]="destination" >
+    </agm-direction> --->
+    <agm-circle [latitude]="radiusLat" [longitude]="radiusLong" [radius]="radius" [fillColor]="'white'"
+     [circleDraggable]="false" [editable]="false" (dragEnd)="radiusDragEnd($event)"
+     (radiusChange)="event('radiusChange',$event)">
+    </agm-circle>
+    </ng-container>
+  </agm-map>
+  
+  
    
   <ng-container *ngIf="CodeSecret === '123'" >
     <div style="position:absolute; top: 0vh; left: 4vh; color: White; background:transparent; z-index: 200; font-size: small; font-weight: bolder; left: 1%">Bienvenue {{NomPrenom}} Ajourd'hui le {{todayDate | date: 'dd/MM/yyyy'}}</div>
@@ -70,36 +110,11 @@
 
   
 
-  <agm-map [zoom]="zoom" [latitude]="latme" [longitude]="lngme" Type="ROAD"  #AgmMap  [styles]= "styles">
+
+
+  <ion-list  *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0" style="position: relative; top: 10%; z-index: 200; background: transparent;">
     
-    <agm-marker [latitude]="latme" [longitude]="lngme" [iconUrl]="iconurl"></agm-marker>
-
-    <ng-container *ngFor="let m of markers; let i = index">
-
-      <agm-marker *ngIf="m.isShown" (markerClick)="clickedMarker(m.label, i)" [latitude]="m.lat" [longitude]="m.lng" [iconUrl]="m.icon" >
-
-          <agm-info-window>
-              <div>{{m.description}}</div>
-          </agm-info-window>
-
-      </agm-marker>
-
-    </ng-container>
-   <!--- <agm-direction [origin]="origin" [destination]="destination" >
-    </agm-direction> --->
-    <agm-circle [latitude]="radiusLat" [longitude]="radiusLong" [radius]="radius" [fillColor]="'white'"
-     [circleDraggable]="false" [editable]="false" (dragEnd)="radiusDragEnd($event)"
-     (radiusChange)="event('radiusChange',$event)">
-    </agm-circle>
-  </agm-map>
-  
-
-
-
-
-  <ion-list *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0" style="z-index: 200; background: transparent;">
-    
-    <ng-container *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0">
+  <!---  <ng-container *ngIf="VoyagesEncoreValidesAllInfos != undefined && ResNbr == 0">
       <ion-list-header>
         Liste des Voyages disponibles:
       </ion-list-header>
@@ -110,18 +125,19 @@
         Veuillez choisir votre destination
       </ion-list-header>
   
-    </ng-container>    
+    </ng-container>    --->
     <ion-item *ngFor="let item of VoyagesEncoreValidesAllInfos">
       <ion-avatar slot="start">
         <img src="assets/icons/User-Profile.png">
       </ion-avatar>
       <ion-label>
-        <h2>Le Driver:{{item.Driver}}</h2>
+        <h2>Le Driver:{{item.Nom}}</h2>
+        <h3>Tel: {{item.Tel}}</h3>
         <h3>Date du voyage: {{item.Date_voyage}}</h3>
-        <p>Nombre de réservation: {{item.NbrReservations}}</p>
+        <p>Nombre de réservations: {{item.NbrReservations}}</p>
       </ion-label>
-      <ion-button  shape="round" color="secondary" size="small" (click)="onVoyageSelected(item, false)">
-        <ion-icon size="small" slot="icon" name="checkmark">Réserver un place</ion-icon>
+      <ion-button color="light"  (click)="onVoyageSelected(item, false)">
+        <ion-icon slot="icon-only" src="assets/icons/checkmark-outline.svg"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
@@ -268,7 +284,7 @@
 
 </ion-content>
 
-<ion-footer style="width: 100%; height: 20vh;">
+<ion-footer style="width: 100%; height: 25vh;">
 
   <ng-container *ngIf="ResNbr == 0 && !isDriver && !isAdmin && CodeSecret === '123' && !global.directshow" >
      
@@ -318,8 +334,9 @@
 
 <ng-container *ngIf="ResNbr > 0 && !isDriver && !isAdmin && CodeSecret === '123' ">
   <ion-list style="height:80%">
-    <ion-item><h4>Vous partez de:</h4>{{NomSource}}<h4> Destination:</h4> {{NomDirection}}</ion-item>
-    <ion-item><h4>Date prévu du voyage:</h4> {{selected_value0}}</ion-item>
+    <ion-item><h5>Vous partez de:</h5>{{NomSource}}<h5> Destination:</h5> {{NomDirection}}</ion-item>
+    <ion-item><h5>Date prévu du voyage:</h5> {{selected_value0}}
+    </ion-item>
   </ion-list>
   
 </ng-container>     
